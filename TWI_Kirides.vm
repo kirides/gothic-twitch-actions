@@ -1,0 +1,11 @@
+[BEGINVDF]
+Comment=
+BaseDir=.\
+VDFName=.\TWI_Kirides.vdf
+[FILES]
+Ninja\TWI_Kirides\* -r
+_Work\* -r
+[EXCLUDE]
+*_DEV.*
+[INCLUDE]
+[ENDVDF]

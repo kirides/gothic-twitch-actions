@@ -1,0 +1,13 @@
+Ikarus
+LeGo
+
+Content\engine.d
+
+Content\AFSP\_headers_G2_All.src
+
+Content\spawnhelpers.d
+Content\G2\npc\bandits.d
+Content\G2\npc\orcs.d
+Content\G2\npc\npcs.d
+CONTENT\random.d
+Content\NinjaInit.d
