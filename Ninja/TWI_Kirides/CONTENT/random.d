@@ -19,16 +19,59 @@ func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 	|| Hlp_StrCmp(instName, "CH")
 	|| Hlp_StrCmp(instName, "SH")
 	|| Hlp_StrCmp(instName, "PC_ROCKEFELLER")
-	|| Hlp_StrCmp(instName, "PC_ROCKEFELLER")
+	|| Hlp_StrCmp(instName, "PC_ITEMFELLER")
+	// G1 Breaker:
+	|| Hlp_StrCmp(instName, "DamLurker")
+	|| Hlp_StrCmp(instName, "XardasDemon")
+	// G2 Breaker:
+	|| Hlp_StrCmp(instName, "Itemhoshi")
+	// Testmodelle Pankratz
+	|| Hlp_StrCmp(instName, "Itemhoshi")
+	|| Hlp_StrCmp(instName, "Hoshi_Testmodell")
+	|| Hlp_StrCmp(instName, "TA_Testmodell")
+	|| Hlp_StrCmp(instName, "TA_Smalltalkpartner")
+	|| Hlp_StrCmp(instName, "SH_Oldworld")
 	|| (i == Hlp_GetInstanceId(hero))
 	) {
 		MEM_Debug("Skip");
 		return 1;
 	};
 
+	if (STR_StartsWith(instName, "ORC_PRIEST_"))
+	|| (STR_StartsWith(instName, "ORG_"))
+	|| (STR_StartsWith(instName, "GRD_"))
+	|| (STR_StartsWith(instName, "BAU_"))
+	|| (STR_StartsWith(instName, "CS_"))
+	|| (STR_StartsWith(instName, "PC_"))
+	|| (STR_StartsWith(instName, "SFB_"))
+	|| (STR_StartsWith(instName, "STT_"))
+	|| (STR_StartsWith(instName, "TPL_"))
+	// G2
+	|| (STR_StartsWith(instName, "NOV_"))
+	|| (STR_StartsWith(instName, "KDW_"))
+	|| (STR_StartsWith(instName, "KDF_"))
+	|| (STR_StartsWith(instName, "PAL_"))
+	|| (STR_StartsWith(instName, "MIL_"))
+	|| (STR_StartsWith(instName, "VLK_"))
+	|| (STR_StartsWith(instName, "PIR_"))
+	|| (STR_StartsWith(instName, "NONE_"))
+	|| (STR_StartsWith(instName, "BDT_"))
+	|| (STR_StartsWith(instName, "DJG_"))
+	|| (STR_StartsWith(instName, "SLD_"))
+	// G2 Quest Mobs
+	|| (STR_StartsWith(instName, "BEACHLURKER"))
+	|| (STR_StartsWith(instName, "BEACHWARAN"))
+	|| (STR_StartsWith(instName, "BEACHSHADOWBEAST"))
+	{
+		MEM_Debug("Skip known npc");
+		return 1;
+	};
+
 	if (STR_IndexOf(instName, "TESTMODELL") > 0)
 	|| (STR_IndexOf(instName, "_TEST_") > 0)
+	|| (STR_IndexOf(instName, "SUMMONED") > 0)
 	|| (STR_IndexOf(instName, "_HELPER_") > 0)
+	|| (STR_IndexOf(instName, "TRANSFORM") > 0)
 	{
 		MEM_Debug("Skip Testmodell");
 		return 1;
@@ -37,50 +80,131 @@ func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 	return 0;
 };
 
-/*
+func void _TWI_Kirides_ClearInventory(var C_NPC npc) {
+	// Globales ITEM speichern und zurücksetzen am Ende
+	var int itmOld; itmOld = _@(item);
+	if (final()) { item = _^(itmOld); };
 
-func void _TWI_Kirides_OnNpcInstance(var int i, var int npcPtr) {
-	const string instName = ""; instName = _PM_InstName(i);
+    var int amount;
+    var int itmID; 
+    
+    var int slotNr;
+	if (GOTHIC_BASE_VERSION == 2) {
+		// Gothic 2 lies to you about categories got NPC_GetInvItemBySlot.
+		// It only looks in a global inventory without respecting the category
 
-	MEM_Debug(ConcatStrings("NPC: ", instName));
-	if (_TWI_Kirides_IgnoreInstance(i, instName)) {
-		return;
-	};
+		MEM_PushInstParam(npc);
+		MEM_CallByString("Npc_ClearInventory");
 
-	Wld_InsertNpc(i, "?????????");
-	Hlp_GetNpc(i);
-
-	var C_NPC npc; npc = _^(npcPtr);
-	self = _^(npcPtr);
-	MEM_CallByID(i);
-
-	const int npcGuild = 0; npcGuild = npc.guild;
-	if ((npcGuild > GIL_SEPERATOR_HUM) && (npcGuild < GIL_SEPERATOR_ORC)) {
-		MEM_Debug(ConcatStrings("NPC pushed: ", instName));
-		MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+		slotNr = 0;
+		while (1); // Loop all items, until category is empty/item is invalid
+			amount = NPC_GetInvItemBySlot(npc, INV_CAT_MAX, slotNr);
+			if (amount == 0) { break; };
+			if (!Hlp_IsValidItem(item)) { break; };
+			
+			itmID = Hlp_GetInstanceID(item);
+			// if (item.flags & ITEM_KAT_ARMOR) {
+			// 	slotNr += 1;
+			// 	continue;
+			// };
+			// if (item.flags & ITEM_ACTIVE_LEGO) {
+			// 	slotNr += 1;
+			// 	continue;
+			// };
+			if (amount > 0) {
+				Npc_RemoveInvItems (npc, itmID, amount);
+			};
+		end;
+	} else {
+		repeat (i,INV_CAT_MAX); var int i;
+			slotNr = 0;
+			while (1); // Loop all items, until category is empty/item is invalid
+				amount = NPC_GetInvItemBySlot(npc, i, slotNr);
+				if (amount == 0) { break; };
+				if (!Hlp_IsValidItem(item)) { break; };
+				
+				itmID = Hlp_GetInstanceID(item);
+				// if (item.flags & ITEM_KAT_ARMOR) {
+				// 	slotNr += 1;
+				// 	continue;
+				// };
+				// For now, also loot equipped stuff.
+				// How do Xardas' golem hearts work in G1?
+				// if (item.flags & ITEM_ACTIVE_LEGO) {
+				// 	slotNr += 1;
+				// 	continue;
+				// };
+				if (amount > 0) {
+					Npc_RemoveInvItems (npc, itmID, amount);
+				};
+			end;
+		end;
 	};
 };
-*/
 
-func void _TWI_Kirides_OnNpcInstance(var int i, var int npcPtr) {
-	const string instName = ""; instName = _PM_InstName(i);
+func int _TWI_Kirides_GetGuild(var int inst) {
+	const int idxC_NPC_GUILD = -1;
+	if (idxC_NPC_GUILD == -1) { idxC_NPC_GUILD = MEM_FindParserSymbol("C_NPC.GUILD"); };
 
-	// MEM_Debug(ConcatStrings("NPC: ", instName));
-	
-	if (_TWI_Kirides_IgnoreInstance(i, instName)) {
-		return;
+	const int tokenArr = 0; tokenArr = MEM_ArrayCreate();
+	const int paramArr = 0; paramArr = MEM_ArrayCreate();
+	const int posArr   = 0;   posArr = MEM_ArrayCreate();
+
+	MEMINT_TokenizeFunction(inst, tokenArr, paramArr, posArr);
+
+	var int guild; guild = -1;
+	var zCPar_Symbol symb;
+	repeat(i, MEM_ArraySize(tokenArr)); var int i;
+		var int tok; tok = MEM_ArrayRead(tokenArr, i);
+
+		if (tok != zPAR_OP_IS) { continue; };
+
+		// Look for Xyz = VAR/CONST
+
+		// If right side is not a PUSHVAR, we don't care about the rest
+		var int right; right = MEM_ArrayRead(tokenArr, i-2);
+		if (right != zPAR_TOK_PUSHVAR) { continue; };
+
+		// left must also be a PUSHVAR
+		var int left;  left  = MEM_ArrayRead(tokenArr, i-1);
+		if (left != zPAR_TOK_PUSHVAR) { continue; };
+
+		if (MEM_ArrayRead(paramArr, i-1) == idxC_NPC_GUILD) {
+			symb = _^(MEM_GetSymbolByIndex(MEM_ArrayRead(paramArr, i-2)));
+			guild = symb.content;
+			break;
+		};
+	end;
+
+	if (guild == -1) {
+		symb = _^(MEM_ReadIntArray(contentSymbolTableAddress, inst));
+		if (symb.parent != 0) {
+			symb = _^(symb.parent);
+			
+			MEM_ArrayFree(tokenArr);
+			MEM_ArrayFree(paramArr);
+			MEM_ArrayFree(posArr);
+
+			return +_TWI_Kirides_GetGuild(MEM_GetSymbolIndex(symb.name));
+		};
 	};
 
-	Wld_InsertNpc(i, "?????????");
-	var C_NPC npc; npc = Hlp_GetNpc(i);
+	MEM_ArrayFree(tokenArr);
+	MEM_ArrayFree(paramArr);
+	MEM_ArrayFree(posArr);
+	return +guild;
+};
 
-	const int npcGuild = 0; npcGuild = npc.guild;
+func void _TWI_Kirides_OnNpcInstance(var int i) {
+	const int npcGuild = 0; npcGuild = _TWI_Kirides_GetGuild(i);
 	if ((npcGuild > GIL_SEPERATOR_HUM) && (npcGuild < GIL_SEPERATOR_ORC)) {
-		// MEM_Debug(ConcatStrings("NPC pushed: ", instName));
+		const string instName = ""; instName = _PM_InstName(i);
+		if (_TWI_Kirides_IgnoreInstance(i, instName)) {
+			return;
+		};
+
 		MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
 	};
-
-	Npc_ChangeAttribute	(npc, ATR_HITPOINTS, -npc.attribute[ATR_HITPOINTS_MAX]);
 };
 
 func int _TWI_Kirides_CountAllMonsters() {
@@ -89,21 +213,8 @@ func int _TWI_Kirides_CountAllMonsters() {
 	};
 
 	const int i = 0; i = 0;
-	const int npcPtrSize = 0; npcPtrSize = _TWI_MEM_SizeOf_C_NPC();
-	MEM_Debug(ConcatStrings("Allocating Bytes: ", IntToString(npcPtrSize)));
-
-	const int npcPtr = 0; npcPtr = MEM_Alloc(npcPtrSize);
-	if (final()) { MEM_Free(npcPtr); };
-
 	var int selfBak;  selfBak  = _@(self);
 	var int instBak; instBak = MEM_GetUseInstance();
-
-
-	if (zCParser_CreateInstance(_TWI_MEM_C_NPC@, npcPtr) == 0) 
-	{
-		MEM_Info("Instanz konnte nicht erzeugt werden!");
-		return 0;
-	};
 
 	MEM_Debug("Walking the Symbol table");
 
@@ -116,13 +227,13 @@ func int _TWI_Kirides_CountAllMonsters() {
 
         symb = _^(symb.parent);
 		if (Hlp_StrCmp(symb.name, "C_NPC")) {
-			_TWI_Kirides_OnNpcInstance(i, npcPtr);
+			_TWI_Kirides_OnNpcInstance(i);
 		}
 		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
 			symb = _^(symb.parent);
 
 			if (Hlp_StrCmp(symb.name, "C_NPC")) {
-				_TWI_Kirides_OnNpcInstance(i, npcPtr);
+				_TWI_Kirides_OnNpcInstance(i);
 			};
 		};
 

@@ -59,6 +59,8 @@ func void _TWI_Kirides_Spawn_N(var string user, var int inst, var int amount, va
 		Wld_SpawnNpcRange(hero, inst, 1, 1000);
 		var C_NPC npc; npc = Hlp_GetNpc(inst);
 		npc.name = ConcatStrings(npc.name, ConcatStrings(" (", ConcatStrings(user, ")")));
+		npc.flags = 0;
+
 		if (isEnemy) { _TWI_Kirides_MakeNpcEnemy(npc); };
 		if (immortal) { npc.flags = npc.flags | NPC_FLAG_IMMORTAL; };
 	end;
@@ -70,6 +72,7 @@ func void _TWI_Kirides_SpawnNamed_N(var string user, var int inst, var string na
 		Wld_SpawnNpcRange(hero, inst, 1, 1000);
 		var C_NPC npc; npc = Hlp_GetNpc(inst);
 		npc.name = ConcatStrings(name, ConcatStrings(" (", ConcatStrings(user, ")")));
+		npc.flags = 0;
 
 		if (isEnemy) { _TWI_Kirides_MakeNpcEnemy(npc); };
 	end;
