@@ -336,26 +336,6 @@ func void TWI_FullHeal() {
 	Npc_ChangeAttribute(hero, ATR_HITPOINTS, hero.attribute[ATR_HITPOINTS_MAX]);
 };
 
-func int _TWI_CanEquip(var C_NPC npc, var C_ITEM itm) {
-	const int ITM_COND_MAX = 3;
-	const int idxAttr = -1;
-	const int condValue = -1;
-	const int npcValue = -1;
-
-	repeat(i, ITM_COND_MAX); var int i;
-		idxAttr = MEM_ReadStatArr(_@(itm.cond_atr), i);
-		if (idxAttr > 0) {
-			condValue = MEM_ReadStatArr(_@(itm.cond_value), i);
-			npcValue = MEM_ReadStatArr(_@(npc.attribute), idxAttr);
-			if (npcValue < condValue) {
-				return 0;
-			};
-		};
-	end;
-	return 1;
-};
-
-
 /// @param category [ITEM_KAT_FF,  ITEM_KAT_NF]
 func int _TWI_Weakest_By_Category(var C_NPC npc, var int category) {
 	const int weakestWeaponInst = 0; weakestWeaponInst = 0;

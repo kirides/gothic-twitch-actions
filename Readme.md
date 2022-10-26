@@ -17,8 +17,9 @@
 | TWI_SpawnNpcOneOf `INSTANCE...`  | Beschwört zufälligen einen von `INSTANCE` Npcs. "`TWI_SpawnNpcOneOf VLK_574_Mud OrcScout ...`" |
 | TWI_SpawnEnemyOneOf `INSTANCE...`  | Beschwört zufälligen einen von `INSTANCE` Npcs der dem Spieler Feindlich gesinnt ist. "`TWI_SpawnEnemyOneOf VLK_574_Mud OrcScout ...`" |
 | xxxx | xxxx |
-| TWI_Money `N`   | Spende oder Erhalte `N` Goldstücke/Währung. `TWI_Money 100`, `TWI_Money -50`  |
-| TWI_Southpark `N`  | 2x Spielgeschwindigkeit für `N` Sekunden. `TWI_Southpark 10` |
+| TWI_Money `N` | Spende oder Erhalte `N` Goldstücke/Währung. `TWI_Money 100`, `TWI_Money -50`  |
+| TWI_Southpark `N` | 2x Spielgeschwindigkeit für `N` Sekunden. `TWI_Southpark 10` |
+| TWI_InvertKeyControls | Invertiert die Steuerung |
 | TWI_Time {00-23}  | Setzt die Tageszeit. `TWI_Time 06` bedeutet 06:00. Es gibt alle Zahlen von `0`, `1`, `2`, ...`23` |
 | TWI_Weakest_Weapon  | Es werden die schwächsten Waffen die der Held bei sich trägt angezogen. |
 | TWI_SetHP `N`  | Setzt die aktuellen HP des Helden auf `N`. `TWI_SetHP 1` |
