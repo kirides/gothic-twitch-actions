@@ -142,17 +142,14 @@ func void _TWI_Kirides_ClearInventory(var C_NPC npc) {
 	};
 };
 
-func int _TWI_Kirides_GetGuild(var int inst) {
-	const int idxC_NPC_GUILD = -1;
-	if (idxC_NPC_GUILD == -1) { idxC_NPC_GUILD = MEM_FindParserSymbol("C_NPC.GUILD"); };
-
+func int _TWI_Kirides_GetInstIntValue(var int inst, var int targetSymbolIdx) {
 	const int tokenArr = 0; tokenArr = MEM_ArrayCreate();
 	const int paramArr = 0; paramArr = MEM_ArrayCreate();
 	const int posArr   = 0;   posArr = MEM_ArrayCreate();
 
 	MEMINT_TokenizeFunction(inst, tokenArr, paramArr, posArr);
 
-	var int guild; guild = -1;
+	var int value; value = -1;
 	var zCPar_Symbol symb;
 	repeat(i, MEM_ArraySize(tokenArr)); var int i;
 		var int tok; tok = MEM_ArrayRead(tokenArr, i);
@@ -161,22 +158,29 @@ func int _TWI_Kirides_GetGuild(var int inst) {
 
 		// Look for Xyz = VAR/CONST
 
-		// If right side is not a PUSHVAR, we don't care about the rest
+		// If right side is not a PUSHVAR/PUSHINT, we don't care about the rest
 		var int right; right = MEM_ArrayRead(tokenArr, i-2);
-		if (right != zPAR_TOK_PUSHVAR) { continue; };
+		if (right != zPAR_TOK_PUSHVAR && right != zPAR_TOK_PUSHINT) { continue; };
 
-		// left must also be a PUSHVAR
+		// left must be a PUSHVAR
 		var int left;  left  = MEM_ArrayRead(tokenArr, i-1);
 		if (left != zPAR_TOK_PUSHVAR) { continue; };
 
-		if (MEM_ArrayRead(paramArr, i-1) == idxC_NPC_GUILD) {
-			symb = _^(MEM_GetSymbolByIndex(MEM_ArrayRead(paramArr, i-2)));
-			guild = symb.content;
-			break;
+		if (MEM_ArrayRead(paramArr, i-1) == targetSymbolIdx) {
+			if (right == zPAR_TOK_PUSHINT) {
+				value = MEM_ArrayRead(paramArr, i-2);
+				break;
+			}
+			else if (right == zPAR_TOK_PUSHVAR)
+			{
+				symb = _^(MEM_GetSymbolByIndex(MEM_ArrayRead(paramArr, i-2)));
+				value = symb.content;
+				break;
+			};
 		};
 	end;
 
-	if (guild == -1) {
+	if (value == -1) {
 		symb = _^(MEM_ReadIntArray(contentSymbolTableAddress, inst));
 		if (symb.parent != 0) {
 			symb = _^(symb.parent);
@@ -185,19 +189,41 @@ func int _TWI_Kirides_GetGuild(var int inst) {
 			MEM_ArrayFree(paramArr);
 			MEM_ArrayFree(posArr);
 
-			return +_TWI_Kirides_GetGuild(MEM_GetSymbolIndex(symb.name));
+			return +_TWI_Kirides_GetInstIntValue(MEM_GetSymbolIndex(symb.name), targetSymbolIdx);
 		};
 	};
 
 	MEM_ArrayFree(tokenArr);
 	MEM_ArrayFree(paramArr);
 	MEM_ArrayFree(posArr);
-	return +guild;
+	return +value;
 };
 
-func void _TWI_Kirides_OnNpcInstance(var int i) {
+func int _TWI_Kirides_GetGuild(var int inst) {
+	const int idxC_NPC_GUILD = -1;
+	if (idxC_NPC_GUILD == -1) { idxC_NPC_GUILD = MEM_FindParserSymbol("C_NPC.GUILD"); };
+
+
+	// const int targetSymbolIdx = -1; targetSymbolIdx = MEM_FindParserSymbol(symbolName);
+	return +_TWI_Kirides_GetInstIntValue(inst, idxC_NPC_GUILD);
+};
+
+func int _TWI_Kirides_GetLevel(var int inst) {
+	const int idxC_NPC_LEVEL = -1;
+	if (idxC_NPC_LEVEL == -1) { idxC_NPC_LEVEL = MEM_FindParserSymbol("C_NPC.LEVEL"); };
+
+
+	// const int targetSymbolIdx = -1; targetSymbolIdx = MEM_FindParserSymbol(symbolName);
+	return +_TWI_Kirides_GetInstIntValue(inst, idxC_NPC_LEVEL);
+};
+
+func void _TWI_Kirides_OnNpcInstance(var int i, var int maxLevel) {
 	const int npcGuild = 0; npcGuild = _TWI_Kirides_GetGuild(i);
 	if ((npcGuild > GIL_SEPERATOR_HUM) && (npcGuild < GIL_SEPERATOR_ORC)) {
+		if (_TWI_Kirides_GetLevel(i) > maxLevel) {
+			return;
+		};
+
 		const string instName = ""; instName = _PM_InstName(i);
 		if (_TWI_Kirides_IgnoreInstance(i, instName)) {
 			return;
@@ -207,10 +233,11 @@ func void _TWI_Kirides_OnNpcInstance(var int i) {
 	};
 };
 
-func int _TWI_Kirides_CountAllMonsters() {
+func int _TWI_Kirides_CountAllMonsters(var int maxLevel) {
 	if (_TWI_Kirides_AllMonsters_Arr == 0) {
 		_TWI_Kirides_AllMonsters_Arr = MEM_ArrayCreate();
 	};
+	MEM_ArrayClear(_TWI_Kirides_AllMonsters_Arr);
 
 	const int i = 0; i = 0;
 	var int selfBak;  selfBak  = _@(self);
@@ -227,13 +254,13 @@ func int _TWI_Kirides_CountAllMonsters() {
 
         symb = _^(symb.parent);
 		if (Hlp_StrCmp(symb.name, "C_NPC")) {
-			_TWI_Kirides_OnNpcInstance(i);
+			_TWI_Kirides_OnNpcInstance(i, maxLevel);
 		}
 		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
 			symb = _^(symb.parent);
 
 			if (Hlp_StrCmp(symb.name, "C_NPC")) {
-				_TWI_Kirides_OnNpcInstance(i);
+				_TWI_Kirides_OnNpcInstance(i, maxLevel);
 			};
 		};
 
@@ -254,10 +281,31 @@ func int _TWI_Kirides_CountAllMonsters() {
 	return +MEM_ArraySize(_TWI_Kirides_AllMonsters_Arr);
 };
 
-func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount) {
+func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var int limitByLevel) {
 	const int maxMonsters = -1;
+	const int currentChp = 6;
+	const int heroLvl = 0;
+	const int maxLevel = 999999;
+
+	if (limitByLevel) {
+		if (currentChp != Kapitel)
+		|| (heroLvl != hero.level)
+		{
+			heroLvl = hero.level;
+			currentChp = Kapitel;
+			maxMonsters = -1;
+
+			if      (currentChp < 2 && heroLvl < 8) { maxLevel = 11; }
+			else if (currentChp < 3 && heroLvl < 15) { maxLevel = 20; }
+			else if (currentChp < 4 && heroLvl < 19) { maxLevel = 29; }
+			else if (currentChp < 5) { maxLevel = 35; }
+			else                     { maxLevel = 99999; }
+			;
+		};
+	};
+
 	if (maxMonsters == -1) {
-		maxMonsters = _TWI_Kirides_CountAllMonsters();
+		maxMonsters = _TWI_Kirides_CountAllMonsters(maxLevel);
 	};
 	var int rnd;
 	var int inst;
@@ -281,7 +329,20 @@ func void TWI_SpawnRandomMonster() {
 	if (splitCount > 0) { amount = STR_ToInt(STR_Split(args, " ", 0)); }
 	else                { amount = 1; };
 
-	_TWI_Kirides_SpawnRandomMonster(user, amount);
+	_TWI_Kirides_SpawnRandomMonster(user, amount, TRUE);
+};
+
+func void TWI_SpawnRandomMonsterNoLimit() {
+	var string user; user = TwitchIntegration_User;
+	
+	var string args; args = TwitchIntegration_Arguments;
+	var int splitCount; splitCount = STR_SplitCount(args, " ");
+	var int amount;
+	
+	if (splitCount > 0) { amount = STR_ToInt(STR_Split(args, " ", 0)); }
+	else                { amount = 1; };
+
+	_TWI_Kirides_SpawnRandomMonster(user, amount, FALSE);
 };
 
 
