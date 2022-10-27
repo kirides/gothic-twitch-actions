@@ -59,7 +59,7 @@ func void _TWI_Kirides_Spawn_N(var string user, var int inst, var int amount, va
 		Wld_SpawnNpcRange(hero, inst, 1, 1000);
 		var C_NPC npc; npc = Hlp_GetNpc(inst);
 		npc.name = ConcatStrings(npc.name, ConcatStrings(" (", ConcatStrings(user, ")")));
-		npc.flags = 0;
+		npc.flags = npc.flags & ~NPC_FLAG_IMMORTAL;
 
 		if (isEnemy) { _TWI_Kirides_MakeNpcEnemy(npc); };
 		if (immortal) { npc.flags = npc.flags | NPC_FLAG_IMMORTAL; };
@@ -73,6 +73,7 @@ func void _TWI_Kirides_SpawnNamed_N(var string user, var int inst, var string na
 		var C_NPC npc; npc = Hlp_GetNpc(inst);
 		npc.name = ConcatStrings(name, ConcatStrings(" (", ConcatStrings(user, ")")));
 		npc.flags = 0;
+		npc.flags = npc.flags & ~NPC_FLAG_IMMORTAL;
 
 		if (isEnemy) { _TWI_Kirides_MakeNpcEnemy(npc); };
 	end;
@@ -105,7 +106,7 @@ func void TWI_Kirides_SetNpcVisual(var C_NPC slf, var int gender, var string hea
 		MEM_WriteStatArr(_@(slf.aivar), aivGenderSymb.content, gender);
 	};
 
-	// ------ Anis - für Männer und Frauen gleich (Unterschiede werden ggf. durch Ani-Overlays gemacht ------
+	// ------ Anis - fuer Maenner und Frauen gleich (Unterschiede werden ggf. durch Ani-Overlays gemacht ------
 	Mdl_SetVisual (slf,"HUMANS.MDS");
 
 	if (gender == MALE)
@@ -116,18 +117,18 @@ func void TWI_Kirides_SetNpcVisual(var C_NPC slf, var int gender, var string hea
 		// ------ schwache NSCs sind schmal ------
 		if (slf.attribute[ATR_STRENGTH] < 50)
 		{
-			Mdl_SetModelScale		(slf, 0.9, 1, 1); 			//BREITE / Höhe / Tiefe
+			Mdl_SetModelScale		(slf, 0.9, 1, 1); 			//BREITE / Hoehe / Tiefe
 		};
 
 		// ------ starke NSCs sind breit ------
 		if (slf.attribute[ATR_STRENGTH] > 100)
 		{
-			Mdl_SetModelScale		(slf, 1.1, 1, 1);			//BREITE / Höhe / Tiefe
+			Mdl_SetModelScale		(slf, 1.1, 1, 1);			//BREITE / Hoehe / Tiefe
 		};
 	}
 	else //gender == FEMALE
 	{
-		if (bodyTex >= 0) && (bodyTex <= 3) //MännerBodyTex angegeben
+		if (bodyTex >= 0) && (bodyTex <= 3) //MaennerBodyTex angegeben
 		{
 			bodyTex = bodyTex + 4; // Females haben Variation 4-7 (Males 0-3)
 		};
@@ -174,7 +175,7 @@ func void TWI_Kirides_SetAttributesToChapter(var C_NPC slf, var int chapter) {
 	slf.attribute[ATR_HITPOINTS] 		= chptHP;
 	
 	
-	// ------ XP für NSCs ------
+	// ------ XP fuer NSCs ------
 	slf.exp				= (500*((slf.level+1)/2)*(slf.level+1));
 	slf.exp_next		= (500*((slf.level+2)/2)*(slf.level+1));
 };
