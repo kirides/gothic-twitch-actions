@@ -83,21 +83,6 @@ func void TWI_Kirides_Spawn(var string user, var int inst) {
 	_TWI_Kirides_Spawn_N(user, inst, 1, 1, 0);
 };
 
-
-func void TWI_Kirides_UnpackAllItems(var C_NPC npc) {
-	const int oCNpcInventory_UnpackAllItems_G2 = 7405616; // 00710030
-	
-	var oCNpc ownerNpc; ownerNpc = MEM_CpyInst(npc);
-	const int inventory = 0; inventory = _@(ownerNpc.inventory2_vtbl);
-	if (inventory == 0) { return; };
-
-	const int call = 0;
-	if (CALL_Begin(call)) {
-		CALL__thiscall(_@(inventory), oCNpcInventory_UnpackAllItems_G2);
-		call = CALL_End();
-	};
-};
-
 func void TWI_Kirides_SetNpcVisual(var C_NPC slf, var int gender, var string headMesh, var int faceTex, var int bodyTex, var int armorInstance)
 {
 	var int aivGender; aivGender = MEM_GetSymbol("AIV_Gender");

@@ -137,7 +137,6 @@ func void _TWI_Donation_N(var int n) {
 
 	MEM_Info(ConcatStrings("_TWI_Donation_N: ", IntToString(n)));
 
-	// TWI_Kirides_UnpackAllItems(hero);
 	const int amt = 0; amt = Npc_HasItems(hero, TWI_Kirides_CurrencyIdx);
 
 	if (amt == 0) { MEM_Info("TWI: Not enough money!"); return; };
