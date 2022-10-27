@@ -428,3 +428,33 @@ func void TWI_SpawnItemRandom() {
 		Wld_InsertItem(itmIdx, Npc_GetNearestWP(hero));
 	};
 };
+
+
+
+func void TWI_RandomStats() {
+	const int STRDEX = 0; STRDEX = MEMINT_SwitchG1G2(100, 200);
+	const int HP = 0;     HP     = MEMINT_SwitchG1G2(500, 1000);
+	const int MANA = 0;   MANA   = MEMINT_SwitchG1G2(80, 250);
+	var int rnd;
+	
+	rnd = Hlp_Random(STRDEX);
+	hero.attribute[ATR_DEXTERITY] = rnd;
+
+	rnd = Hlp_Random(STRDEX);
+	hero.attribute[ATR_STRENGTH] = rnd;
+
+	rnd = Hlp_Random(HP);
+	hero.attribute[ATR_HITPOINTS_MAX] = rnd;
+
+	if (hero.attribute[ATR_HITPOINTS] > rnd) {
+		hero.attribute[ATR_HITPOINTS] = rnd;
+	};
+
+	rnd = Hlp_Random(MANA);
+	hero.attribute[ATR_MANA_MAX] = rnd;
+	if (hero.attribute[ATR_HITPOINTS] > rnd) {
+		hero.attribute[ATR_HITPOINTS] = rnd;
+	};
+
+	_TWI_UnequipItems_IfStatsTooLow();
+};

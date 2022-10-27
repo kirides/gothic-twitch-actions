@@ -10,8 +10,9 @@
 | TWI_SpawnNpcImmortal `INSTANCE` `AMOUNT` | Beschwört einen unsterblichen NPC. `TWI_SpawnNpcImmortal VLK_574_Mud 2`  |
 | TWI_SpawnNpcNamed `NAME` `INSTANCE` `AMOUNT` | Beschwört einen NPC. `TWI_SpawnNpcNamed Frido VLK_574_Mud 2`  |
 | TWI_RandomWaypoint | Teleportiert den Helden an einen zufälligen Waypoint |
-| TWI_SpawnRandomMonster | Beschwört Random eines der _Monster_ aus dem Spiel, die Monster werden je nach Kapitel oder Helden Level stärker |
-| TWI_SpawnRandomMonsterNoLimit | Beschwört Random eines der _Monster_ aus dem Spiel, hier werden Monster aus allen Levelbereichen auftauchen |
+| TWI_RandomStats | Gibt dem Helden zufällige Statuswerte |
+| TWI_SpawnRandomMonster `AMOUNT` | Beschwört Random eines der _Monster_ aus dem Spiel, die Monster werden je nach Kapitel oder Helden Level stärker |
+| TWI_SpawnRandomMonsterNoLimit `AMOUNT` | Beschwört Random eines der _Monster_ aus dem Spiel, hier werden Monster aus allen Levelbereichen auftauchen |
 | TWI_SpawnItemRandom | Spawnt ein zufälliges Item |
 | TWI_VoicePitch `N` | Stellt den VoicePitch des Helden ein |
 | TWI_SpawnNpcOneOf `INSTANCE...`  | Beschwört zufälligen einen von `INSTANCE` Npcs. "`TWI_SpawnNpcOneOf VLK_574_Mud OrcScout ...`" |
