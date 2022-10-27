@@ -21,10 +21,15 @@ func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 	|| Hlp_StrCmp(instName, "PC_ROCKEFELLER")
 	|| Hlp_StrCmp(instName, "PC_ITEMFELLER")
 	// G1 Breaker:
-	|| Hlp_StrCmp(instName, "DamLurker")
-	|| Hlp_StrCmp(instName, "XardasDemon")
+	|| Hlp_StrCmp(instName, "DamLurker")       // Homer Quest
+	|| Hlp_StrCmp(instName, "XardasDemon")     // Xardas NPC Daemon
+	|| Hlp_StrCmp(instName, "Bridgegolem")     // Lester Quest
+	|| Hlp_StrCmp(instName, "ZombieTheKeeper") // Milten Quest
 	// G2 Breaker:
 	|| Hlp_StrCmp(instName, "Itemhoshi")
+	|| Hlp_StrCmp(instName, "SKELETON_LORD_ARCHOL") // Archol Key
+	|| Hlp_StrCmp(instName, "MagicGolem")
+	|| Hlp_StrCmp(instName, "OrkElite_AntiPaladinOrkOberst_DI")
 	// Testmodelle Pankratz
 	|| Hlp_StrCmp(instName, "Itemhoshi")
 	|| Hlp_StrCmp(instName, "Hoshi_Testmodell")
@@ -58,13 +63,34 @@ func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 	|| (STR_StartsWith(instName, "BDT_"))
 	|| (STR_StartsWith(instName, "DJG_"))
 	|| (STR_StartsWith(instName, "SLD_"))
-	// G2 Quest Mobs
-	|| (STR_StartsWith(instName, "BEACHLURKER"))
-	|| (STR_StartsWith(instName, "BEACHWARAN"))
-	|| (STR_StartsWith(instName, "BEACHSHADOWBEAST"))
 	{
 		MEM_Debug("Skip known npc");
 		return 1;
+	};
+
+	if (GOTHIC_BASE_VERSION == 2) {
+		// G2 Quest Mobs
+		if (STR_StartsWith(instName, "BEACHLURKER"))
+		|| (STR_StartsWith(instName, "BEACHWARAN"))
+		|| (STR_StartsWith(instName, "BEACHSHADOWBEAST"))
+		|| (STR_StartsWith(instName, "CANYONRAZOR"))
+		|| (STR_StartsWith(instName, "CRYPT_SKELETON_ROOM_")) // Krypta Key
+		|| (STR_StartsWith(instName, "SKELETON_ARCHOL"))
+		|| (STR_StartsWith(instName, "SKELETON_MARIO"))
+		|| (STR_StartsWith(instName, "XARDAS_DT_DEMON")) // Pyrokar Quest
+		|| (STR_StartsWith(instName, "LOBARTS_GIANT_BUG")) // Lobart Quest
+		|| (STR_StartsWith(instName, "ICEGOLEM_SYLVIO")) // Silvio Quest
+		|| (STR_StartsWith(instName, "KERVO_LURKER")) // Kervo Quest
+		|| (STR_StartsWith(instName, "MEATBUG_BRUTUS")) // Brutus Quest
+		|| (STR_StartsWith(instName, "SKELETONMAGE_ANGAR")) // Angar Quest
+		|| (STR_StartsWith(instName, "NEWMINE_SNAPPER")) // kap 2 Quest
+		|| (STR_StartsWith(instName, "NEWMINE_LEADSNAPPER")) // kap 2 Quest
+		|| (STR_StartsWith(instName, "MIS_ADDON_SWAMPSHARK_")) // Bandit Quest
+		|| (STR_StartsWith(instName, "PEPES_YWOLF")) // Pepe Quest
+		{
+			MEM_Debug("Skip known npc");
+			return 1;
+		};
 	};
 
 	if (STR_IndexOf(instName, "TESTMODELL") > 0)
