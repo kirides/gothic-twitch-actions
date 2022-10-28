@@ -130,6 +130,32 @@ func string _TWI_CS3(var string a, var string b, var string c) {
 func string _TWI_CS4(var string a, var string b, var string c, var string d) {
 	return ConcatStrings(a, ConcatStrings(b, ConcatStrings(c, d)));
 };
+
+const int _TWI_Shrink_IsShrunken = 0;
+func void _FF_TWI_Shrink_Undo() {
+	_TWI_Shrink_IsShrunken = 0;
+	Mdl_SetModelScale(hero,	1.0, 1.0, 1.0);
+};
+func void _FF_TWI_Shrink_ReApply() {
+	if (_TWI_Shrink_IsShrunken) {
+		Mdl_SetModelScale(hero,	0.3, 0.3, 0.3);
+	} else {
+		FF_RemoveAll(_FF_TWI_Shrink_ReApply);
+	};
+};
+func void TWI_Shrink() {
+	_TWI_Shrink_IsShrunken = 1;
+	Mdl_SetModelScale(hero,	0.3, 0.3, 0.3);
+
+	var int duration; duration = STR_ToInt(TwitchIntegration_Arguments);
+	if (duration <= 0) {
+		duration = 30;
+	};
+
+	FF_ApplyOnceExtGT(_FF_TWI_Shrink_Undo, duration * 1000, 1);
+	FF_ApplyOnceExtGT(_FF_TWI_Shrink_ReApply, 1000, -1);
+};
+
 func void _TWI_Donation_N(var int n) {
 	if (n <= 0) { MEM_Info("TWI: amount <= 0"); return; };
 	if (!Hlp_IsValidNpc(hero)) { MEM_Info("TWI: hero invalid"); return; };
@@ -195,19 +221,25 @@ const int _TWI_Kirides_Southpark_Max = 0;
 
 func void _TWI_Kirides_Southpark_FF() {
 	if (_TWI_Kirides_Southpark_Max == 0) {
-		FF_Remove(_TWI_Kirides_Southpark_FF);
+		FF_RemoveAll(_TWI_Kirides_Southpark_FF);
 		return;
 	};
-	if (_TWI_Kirides_Southpark_Counter >= _TWI_Kirides_Southpark_Max) {
+	_TWI_Kirides_Southpark_Counter += 1;
+	if (_TWI_Kirides_Southpark_Counter > _TWI_Kirides_Southpark_Max) {
 		_TWI_Kirides_Southpark_Max = 0;
-		MEM_Timer.factorMotion = FLOATONE;
-		FF_Remove(_TWI_Kirides_Southpark_FF);
+		FF_RemoveAll(_TWI_Kirides_Southpark_FF);
 		return;
 	};
 	if (!InfoManager_Hasfinished()) { return; };
 
 	MEM_Timer.factorMotion = mkf(2);
-	_TWI_Kirides_Southpark_Counter += 1;
+};
+
+func void _TWI_Kirides_Southpark_Reset() {
+	if (_TWI_Kirides_Southpark_Max == 0) {
+		FF_RemoveAll(_TWI_Kirides_Southpark_FF);
+		MEM_Timer.factorMotion = FLOATONE;
+	};
 };
 
 func void _TWI_Southpark_N(var int n) {
@@ -216,9 +248,10 @@ func void _TWI_Southpark_N(var int n) {
 	
 	MEM_Info(ConcatStrings("_TWI_Southpark_N: ", IntToString(n)));
 
-	_TWI_Kirides_Southpark_Max     = n;
 	_TWI_Kirides_Southpark_Counter = 0;
+	_TWI_Kirides_Southpark_Max = n;
 	FF_ApplyOnceExtGT(_TWI_Kirides_Southpark_FF, 1000, -1);
+	FF_ApplyOnceExtGT(_TWI_Kirides_Southpark_Reset, 100, -1);
 };
 
 func void TWI_Southpark()  { 	
@@ -227,10 +260,6 @@ func void TWI_Southpark()  {
 		_TWI_Southpark_N(amount);
 	};
 };
-func void TWI_Southpark_10()  { _TWI_Southpark_N( 10); };
-func void TWI_Southpark_30()  { _TWI_Southpark_N( 30); };
-func void TWI_Southpark_60()  { _TWI_Southpark_N( 60); };
-func void TWI_Southpark_120() { _TWI_Southpark_N(120); };
 
 
 func void _TWI_Kirides_Time(var int hour) {
@@ -262,7 +291,9 @@ func void _TWI_SetMana_0() {
 
 func void _TWI_SetHP(var int n) {
 	MEM_Info(ConcatStrings("_TWI_SetHP: ", IntToString(n)));
-	
+	if hero.attribute[ATR_HITPOINTS] == 0 {
+		return;
+	};
 	var int maxHp; maxHp = hero.attribute[ATR_HITPOINTS_MAX];
 	if (n <= 0) {
 		return;
@@ -294,7 +325,7 @@ func void _TWI_SetMana(var int n) {
 	};
 	const int hp = 0; hp = -hero.attribute[ATR_MANA];
 	hp += n;
-	Npc_ChangeAttribute(hero, ATR_HITPOINTS, hp);
+	Npc_ChangeAttribute(hero, ATR_MANA, hp);
 };
 
 func void TWI_SetMana() {
@@ -498,7 +529,7 @@ func void _TWI_Init_Currency() {
 func void Ninja_TWI_Kirides_Init() {
 	// Initialize Ikarus
 	MEM_InitAll();
-	Lego_MergeFlags(LeGo_FrameFunctions);
+	Lego_MergeFlags(LeGo_FrameFunctions|LeGo_Random);
 	
 	const int once = 0;
 	if (once) { return; };

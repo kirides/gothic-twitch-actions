@@ -9,6 +9,7 @@ func int _TWI_MEM_SizeOf_C_NPC() {
 };
 
 const int _TWI_Kirides_AllMonsters_Arr = 0;
+const int _TWI_Kirides_LimitedMonsters_Arr = 0;
 
 func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 
@@ -243,27 +244,35 @@ func int _TWI_Kirides_GetLevel(var int inst) {
 	return +_TWI_Kirides_GetInstIntValue(inst, idxC_NPC_LEVEL);
 };
 
-func void _TWI_Kirides_OnNpcInstance(var int i, var int maxLevel) {
+func int _TWI_Kirides_NpcIsMonster(var int i) {
 	const int npcGuild = 0; npcGuild = _TWI_Kirides_GetGuild(i);
 	if ((npcGuild > GIL_SEPERATOR_HUM) && (npcGuild < GIL_SEPERATOR_ORC)) {
-		if (_TWI_Kirides_GetLevel(i) > maxLevel) {
-			return;
-		};
-
 		const string instName = ""; instName = _PM_InstName(i);
 		if (_TWI_Kirides_IgnoreInstance(i, instName)) {
-			return;
+			return 0;
 		};
 
-		MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+		return 1;
 	};
+	return 0;
+};
+func void _TWI_Kirides_OnNpcInstance(var int array, var int i, var int maxLevel) {
+	if (_TWI_Kirides_GetLevel(i) > maxLevel) {
+		return;
+	};
+
+	MEM_ArrayInsert(array, i);
 };
 
-func int _TWI_Kirides_CountAllMonsters(var int maxLevel) {
+const int _TWI_Kirides_AllMonsters_Initialized = 0;
+func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 	if (_TWI_Kirides_AllMonsters_Arr == 0) {
 		_TWI_Kirides_AllMonsters_Arr = MEM_ArrayCreate();
 	};
-	MEM_ArrayClear(_TWI_Kirides_AllMonsters_Arr);
+	if (_TWI_Kirides_LimitedMonsters_Arr == 0) {
+		_TWI_Kirides_LimitedMonsters_Arr = MEM_ArrayCreate();
+	};
+	MEM_ArrayClear(_TWI_Kirides_LimitedMonsters_Arr);
 
 	const int i = 0; i = 0;
 	var int selfBak;  selfBak  = _@(self);
@@ -280,13 +289,23 @@ func int _TWI_Kirides_CountAllMonsters(var int maxLevel) {
 
         symb = _^(symb.parent);
 		if (Hlp_StrCmp(symb.name, "C_NPC")) {
-			_TWI_Kirides_OnNpcInstance(i, maxLevel);
+			if (_TWI_Kirides_NpcIsMonster(i)) {
+				if (_TWI_Kirides_AllMonsters_Initialized == 0) {
+					MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+				};
+				_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
+			};
 		}
 		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
 			symb = _^(symb.parent);
 
 			if (Hlp_StrCmp(symb.name, "C_NPC")) {
-				_TWI_Kirides_OnNpcInstance(i, maxLevel);
+				if (_TWI_Kirides_NpcIsMonster(i)) {
+					if (_TWI_Kirides_AllMonsters_Initialized == 0) {
+						MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+					};
+					_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
+				};
 			};
 		};
 
@@ -297,6 +316,7 @@ func int _TWI_Kirides_CountAllMonsters(var int maxLevel) {
 		MEM_SetUseInstance(instBak);
 	end;
 
+	_TWI_Kirides_AllMonsters_Initialized = 1;
 	MEM_Debug("Done walking the Symbol table");
 
 	MEM_AssignInstSuppressNullWarning = TRUE;
@@ -307,12 +327,16 @@ func int _TWI_Kirides_CountAllMonsters(var int maxLevel) {
 	return +MEM_ArraySize(_TWI_Kirides_AllMonsters_Arr);
 };
 
+func int _TWI_Math_Min(var int a, var int b) {
+	if (a < b) { return a; };
+	return b;
+};
 func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var int limitByLevel) {
 	const int maxMonsters = -1;
 	const int currentChp = 6;
 	const int heroLvl = 0;
 	const int maxLevel = 999999;
-
+	const int usedArray = 0;
 	if (limitByLevel) {
 		if (currentChp != Kapitel)
 		|| (heroLvl != hero.level)
@@ -321,60 +345,62 @@ func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var i
 			currentChp = Kapitel;
 			maxMonsters = -1;
 
-			if      (currentChp < 2 && heroLvl < 8) { maxLevel = 11; }
-			else if (currentChp < 3 && heroLvl < 15) { maxLevel = 20; }
-			else if (currentChp < 4 && heroLvl < 19) { maxLevel = 29; }
-			else if (currentChp < 5) { maxLevel = 35; }
-			else                     { maxLevel = 99999; }
+			if      (currentChp == 1 && heroLvl < 5)  { maxLevel = _TWI_Math_Min(hero.level+5, 8); }
+			else if (currentChp == 2 && heroLvl < 12) { maxLevel = _TWI_Math_Min(hero.level+5, 12); }
+			else if (currentChp == 3 && heroLvl < 16) { maxLevel = _TWI_Math_Min(hero.level+5, 16); }
+			else if (currentChp == 4 && heroLvl < 19) { maxLevel = _TWI_Math_Min(hero.level+5, 19); }
+			else if (currentChp == 5 && heroLvl < 20) { maxLevel = _TWI_Math_Min(hero.level+5, 24); }
+			else                                      { maxLevel = 99999; }
 			;
+			_TWI_Kirides_CollectMonsters(maxLevel);
 		};
+		if (_TWI_Kirides_LimitedMonsters_Arr == 0) {
+			_TWI_Kirides_CollectMonsters(maxLevel);
+		};
+		usedArray = _TWI_Kirides_LimitedMonsters_Arr;
+	} else {
+		if (!_TWI_Kirides_AllMonsters_Initialized) {
+			_TWI_Kirides_CollectMonsters(1);
+		};
+		usedArray = _TWI_Kirides_AllMonsters_Arr;
 	};
 
-	if (maxMonsters == -1) {
-		maxMonsters = _TWI_Kirides_CountAllMonsters(maxLevel);
-	};
+	maxMonsters = MEM_ArraySize(usedArray);
 	var int rnd;
 	var int inst;
 
 	repeat(i, amount); var int i;
-		rnd = Hlp_Random(maxMonsters);
+		rnd = r_Next()%maxMonsters;
 
-		inst = MEM_ArrayRead(_TWI_Kirides_AllMonsters_Arr, rnd);
+		inst = MEM_ArrayRead(usedArray, rnd);
 		_TWI_Kirides_Spawn_N(user, inst, 1, TRUE, FALSE);
 	end;
 };
 
-
 func void TWI_SpawnRandomMonster() {
 	var string user; user = TwitchIntegration_User;
-	
 	var string args; args = TwitchIntegration_Arguments;
-	var int splitCount; splitCount = STR_SplitCount(args, " ");
-	var int amount;
-	
-	if (splitCount > 0) { amount = STR_ToInt(STR_Split(args, " ", 0)); }
-	else                { amount = 1; };
+
+	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
+	if (amount <= 0) { amount = 1; };
 
 	_TWI_Kirides_SpawnRandomMonster(user, amount, TRUE);
 };
 
 func void TWI_SpawnRandomMonsterNoLimit() {
 	var string user; user = TwitchIntegration_User;
-	
 	var string args; args = TwitchIntegration_Arguments;
-	var int splitCount; splitCount = STR_SplitCount(args, " ");
-	var int amount;
-	
-	if (splitCount > 0) { amount = STR_ToInt(STR_Split(args, " ", 0)); }
-	else                { amount = 1; };
+
+	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
+	if (amount <= 0) { amount = 1; };
 
 	_TWI_Kirides_SpawnRandomMonster(user, amount, FALSE);
 };
 
-
-func int _TWI_SpawnItemRandom_CountAll() {
+const int _TWI_SpawnItemRandom_Array = 0;
+func int _TWI_SpawnItemRandom_CollectAll() {
+	var int array; array = MEM_ArrayCreate();
 	const int i = 0; i = 0;
-	const int current = 0; current = 0;
 
 	repeat(i, MEM_Parser.symtab_table_numInArray);
 		var zCPar_Symbol symb; symb = _^(MEM_ReadIntArray(MEM_Parser.symtab_table_array, i));
@@ -384,99 +410,244 @@ func int _TWI_SpawnItemRandom_CountAll() {
 		};
 
         symb = _^(symb.parent);
-		var C_NPC npc;
-		const int npcGuild = 0;
 		if (Hlp_StrCmp(symb.name, "C_ITEM")) {
-			current+=1;
+			MEM_ArrayPush(array, i);
 		}
 		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
 			symb = _^(symb.parent);
 			if (Hlp_StrCmp(symb.name, "C_ITEM")) {
-				current += 1;
+				MEM_ArrayPush(array, i);
 			};
 		};
 	end;
 
-	return +current;
+	return +array;
 };
 
-func void TWI_RandomWaypoint() {
+
+func void _TWI_RandomWaypoint_FF() {
+	// NOT While in dialog!
+	if (!InfoManager_Hasfinished()) { return; };
+
 	var zCWaynet wayNet; wayNet = MEM_PtrToInst(MEM_World.wayNet);
 	var int len; len = List_LengthS(wayNet.wplist_next);
-	var int rnd; rnd = Hlp_Random(len);
+	var int rnd; rnd = r_Next()%len;
 
 	var int ptr; ptr = List_GetS(wayNet.wplist_next, rnd);
 	var zCWaypoint wp; wp = _^(ptr);
 
 	AI_Teleport(hero, wp.name);
+	FF_RemoveAll(_TWI_RandomWaypoint_FF);
+};
+
+func void TWI_RandomWaypoint() {
+	FF_ApplyOnceExtGT(_TWI_RandomWaypoint_FF, 200, -1);
 };
 
 func void TWI_SpawnItemRandom() {
-	const int i = 0; i = 0;
-	const int current = 0; current = 0;
-	const int itmIdx = -1; itmIdx = -1;
-	const int totalItems = -1;
-
-	if (totalItems == -1) {
-		totalItems = _TWI_SpawnItemRandom_CountAll();
+	if (_TWI_SpawnItemRandom_Array == 0) {
+		_TWI_SpawnItemRandom_Array = _TWI_SpawnItemRandom_CollectAll();
 	};
 
-	var int rnd; rnd = Hlp_Random(totalItems);
-
-	repeat(i, MEM_Parser.symtab_table_numInArray);
-		var zCPar_Symbol symb; symb = _^(MEM_ReadIntArray(MEM_Parser.symtab_table_array, i));
-
-		if ((symb.bitfield & zCPar_Symbol_bitfield_type) != zPAR_TYPE_INSTANCE || STR_IndexOf(symb.name, ".") > 0 || !symb.parent) {
-			continue;
-		};
-
-        symb = _^(symb.parent);
-		if (Hlp_StrCmp(symb.name, "C_ITEM")) {
-			if (current == rnd) {
-				itmIdx = i;
-				break;
-			};
-			current+=1;
-		}
-		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
-			symb = _^(symb.parent);
-			if (Hlp_StrCmp(symb.name, "C_ITEM")) {
-				if (current == rnd) {
-					itmIdx = i;
-					break;
-				};
-				current += 1;
-			};
-		};
-	end;
+	const int totalItems = -1; totalItems = MEM_ArraySize(_TWI_SpawnItemRandom_Array);
+	if totalItems <= 0 {
+		return;
+	};
+	var int rnd; rnd = r_Next()%totalItems;
+	const int itmIdx = -1; itmIdx = MEM_ArrayRead(_TWI_SpawnItemRandom_Array, rnd);
 
 	if (itmIdx != -1) {
+		MEMINT_GetMemHelper();
+		if !Npc_GetInvItem(MEM_Helper, itmIdx) {
+			CreateInvItem(MEM_Helper, itmIdx);
+			Npc_GetInvItem(MEM_Helper, itmIdx);
+		};
+		if (Hlp_IsValidItem(item)){
+			Print(ConcatStrings("Hier liegt irgendwo ", item.description));
+		};
 		Wld_InsertItem(itmIdx, Npc_GetNearestWP(hero));
 	};
 };
 
+const int _TWI_SpawnRandomItemNoArmorWeapons_Array = 0;
+func int _TWI_SpawnRandomItemNoArmorWeapons_CollectAll() {
+	if (_TWI_SpawnItemRandom_Array == 0) {
+		_TWI_SpawnItemRandom_Array = _TWI_SpawnItemRandom_CollectAll();
+	};
 
+	const int idx_C_Item_MainFlag = -1;
+	if (idx_C_Item_MainFlag == -1) { idx_C_Item_MainFlag = MEM_FindParserSymbol("C_ITEM.MAINFLAG"); };
+
+	var int array; array = MEM_ArrayCreate();
+	const int i = 0; i = 0;
+	const int itemIdx = 0; itemIdx = 0;
+	const int mainFlag = 0;
+	const int wear = 0;
+
+	repeat(i, MEM_ArraySize(_TWI_SpawnItemRandom_Array));
+		itemIdx = MEM_ArrayRead(_TWI_SpawnItemRandom_Array, i);
+
+		mainFlag = +_TWI_Kirides_GetInstIntValue(itemIdx, idx_C_Item_MainFlag);
+		if (mainFlag & ITEM_KAT_ARMOR) { continue; };
+		if (mainFlag & ITEM_KAT_NF) { continue; };
+		if (mainFlag & ITEM_KAT_FF) { continue; };
+
+		MEM_ArrayPush(array, itemIdx);
+	end;
+
+	return +array;
+};
+
+
+func void TWI_SpawnRandomItemNoArmorWeapons() {
+	if (_TWI_SpawnRandomItemNoArmorWeapons_Array == 0) {
+		_TWI_SpawnRandomItemNoArmorWeapons_Array = _TWI_SpawnRandomItemNoArmorWeapons_CollectAll();
+	};
+
+	const int totalItems = -1; totalItems = MEM_ArraySize(_TWI_SpawnRandomItemNoArmorWeapons_Array);
+	if totalItems <= 0 {
+		return;
+	};
+	var int rnd; rnd = r_Next()%totalItems;
+	const int itmIdx = -1; itmIdx = MEM_ArrayRead(_TWI_SpawnRandomItemNoArmorWeapons_Array, rnd);
+	const int oldArmor = -1;
+
+	if (itmIdx != -1) {
+		MEMINT_GetMemHelper();
+		if !Npc_GetInvItem(MEM_Helper, itmIdx) {
+			CreateInvItem(MEM_Helper, itmIdx);
+			Npc_GetInvItem(MEM_Helper, itmIdx);
+		};
+		if (Hlp_IsValidItem(item)){
+			Print(ConcatStrings("Hier liegt irgendwo ", item.description));
+		};
+		Wld_InsertItem(itmIdx, Npc_GetNearestWP(hero));
+	};
+};
+
+const int _TWI_SpawnRandomArmor_Array = 0;
+func int _TWI_RandomArmor_CollectAll() {
+	if (_TWI_SpawnItemRandom_Array == 0) {
+		_TWI_SpawnItemRandom_Array = _TWI_SpawnItemRandom_CollectAll();
+	};
+
+	const int idx_C_Item_MainFlag = -1;
+	const int idx_C_Item_Wear = -1;
+	if (idx_C_Item_MainFlag == -1) { idx_C_Item_MainFlag = MEM_FindParserSymbol("C_ITEM.MAINFLAG"); };
+	if (idx_C_Item_Wear == -1)     { idx_C_Item_Wear = MEM_FindParserSymbol("C_ITEM.WEAR"); };
+
+	var int array; array = MEM_ArrayCreate();
+	const int i = 0; i = 0;
+	const int itemIdx = 0; itemIdx = 0;
+	const int mainFlag = 0;
+	const int wear = 0;
+
+	repeat(i, MEM_ArraySize(_TWI_SpawnItemRandom_Array));
+		itemIdx = MEM_ArrayRead(_TWI_SpawnItemRandom_Array, i);
+
+		mainFlag = +_TWI_Kirides_GetInstIntValue(itemIdx, idx_C_Item_MainFlag);
+		if (mainFlag & ITEM_KAT_ARMOR) {
+			wear = +_TWI_Kirides_GetInstIntValue(itemIdx, idx_C_Item_Wear);
+			if (wear == WEAR_TORSO) {
+				MEM_ArrayPush(array, itemIdx);
+			};
+		};
+	end;
+
+	return +array;
+};
+
+func void TWI_RandomArmor() {
+	if (_TWI_SpawnRandomArmor_Array == 0) {
+		_TWI_SpawnRandomArmor_Array = _TWI_RandomArmor_CollectAll();
+	};
+
+	const int totalItems = -1; totalItems = MEM_ArraySize(_TWI_SpawnRandomArmor_Array);
+	if totalItems <= 0 {
+		return;
+	};
+	var int rnd; rnd = r_Next()%totalItems;
+	const int itmIdx = -1; itmIdx = MEM_ArrayRead(_TWI_SpawnRandomArmor_Array, rnd);
+	const int oldArmor = -1;
+
+	var C_ITEM armor;
+	if (itmIdx != -1) {
+		armor = Npc_GetEquippedArmor(hero);
+		if (Hlp_IsValidItem(armor)) {
+			oldArmor = Hlp_GetInstanceId(armor);
+			_TWI_oCNpc_EquipArmor(_@(hero), _@(armor));
+			Npc_RemoveInvItem(hero, oldArmor);
+		};
+		if (!Npc_HasItems(hero, itmIdx)) {
+			CreateInvItem(hero, itmIdx);
+		};
+		_TWI_EquipArmor(hero, itmIdx);
+	};
+};
 
 func void TWI_RandomStats() {
-	const int STRDEX = 0; STRDEX = MEMINT_SwitchG1G2(100, 200);
-	const int HP = 0;     HP     = MEMINT_SwitchG1G2(500, 1000);
-	const int MANA = 0;   MANA   = MEMINT_SwitchG1G2(80, 250);
+	const int STRDEX_Min = 0;
+	const int STRDEX = 0;
+	const int HP_Min = 0;
+	const int HP = 0;
+	const int MANA_Min = 0;
+	const int MANA = 0;
+
+	MANA_Min = 1;
+
+	if Kapitel < 2 {
+		STRDEX_Min = 10;
+		HP_Min = 5;
+		STRDEX = MEMINT_SwitchG1G2(30, 60);
+		HP     = MEMINT_SwitchG1G2(100, 100);
+		MANA   = MEMINT_SwitchG1G2(30, 60);
+	} else if Kapitel < 3 {
+		STRDEX_Min = 25;
+		HP_Min = 30;
+		STRDEX = MEMINT_SwitchG1G2(60, 90);
+		HP     = MEMINT_SwitchG1G2(150, 180);
+		MANA   = MEMINT_SwitchG1G2(40, 100);
+	} else if Kapitel < 4 {
+		STRDEX_Min = 40;
+		HP_Min = 50;
+		STRDEX = MEMINT_SwitchG1G2(90, 130);
+		HP     = MEMINT_SwitchG1G2(200, 400);
+		MANA   = MEMINT_SwitchG1G2(50, 150);
+	} else if Kapitel < 5 {
+		STRDEX_Min = 60;
+		HP_Min = 80;
+		STRDEX = MEMINT_SwitchG1G2(110, 150);
+		HP     = MEMINT_SwitchG1G2(300, 500);
+		MANA   = MEMINT_SwitchG1G2(60, 200);
+	} else if Kapitel < 6 {
+		STRDEX_Min = 60;
+		HP_Min = 100;
+		STRDEX = MEMINT_SwitchG1G2(120, 200);
+		HP     = MEMINT_SwitchG1G2(350, 700);
+		MANA   = MEMINT_SwitchG1G2(70, 250);
+	} else {
+		STRDEX_Min = 60;
+		HP_Min = 100;
+		STRDEX = MEMINT_SwitchG1G2(120, 200);
+		HP     = MEMINT_SwitchG1G2(500, 1000);
+		MANA   = MEMINT_SwitchG1G2(80, 250);
+	};
+
 	var int rnd;
 	
-	rnd = Hlp_Random(STRDEX);
+	rnd = r_MinMax(STRDEX_Min, STRDEX);
 	hero.attribute[ATR_DEXTERITY] = rnd;
 
-	rnd = Hlp_Random(STRDEX);
+	rnd = r_MinMax(STRDEX_Min, STRDEX);
 	hero.attribute[ATR_STRENGTH] = rnd;
 
-	rnd = Hlp_Random(HP);
+	rnd = r_MinMax(HP_Min, HP);
 	hero.attribute[ATR_HITPOINTS_MAX] = rnd;
-
 	if (hero.attribute[ATR_HITPOINTS] > rnd) {
 		hero.attribute[ATR_HITPOINTS] = rnd;
 	};
 
-	rnd = Hlp_Random(MANA);
+	rnd = r_MinMax(MANA_Min, MANA);
 	hero.attribute[ATR_MANA_MAX] = rnd;
 	if (hero.attribute[ATR_HITPOINTS] > rnd) {
 		hero.attribute[ATR_HITPOINTS] = rnd;
@@ -484,3 +655,36 @@ func void TWI_RandomStats() {
 
 	_TWI_UnequipItems_IfStatsTooLow();
 };
+
+func void TWI_RandomStatsNoLimit() {
+	const int STRDEX = 0;
+	const int HP = 0;
+	const int MANA = 0;
+	
+	STRDEX = MEMINT_SwitchG1G2(150, 220);
+	HP     = MEMINT_SwitchG1G2(500, 1000);
+	MANA   = MEMINT_SwitchG1G2(100, 300);
+
+	var int rnd;
+	
+	rnd = r_Max(STRDEX);
+	hero.attribute[ATR_DEXTERITY] = rnd;
+
+	rnd = r_Max(STRDEX);
+	hero.attribute[ATR_STRENGTH] = rnd;
+
+	rnd = r_Max(HP);
+	hero.attribute[ATR_HITPOINTS_MAX] = rnd;
+	if (hero.attribute[ATR_HITPOINTS] > rnd) {
+		hero.attribute[ATR_HITPOINTS] = rnd;
+	};
+
+	rnd = r_Max(MANA);
+	hero.attribute[ATR_MANA_MAX] = rnd;
+	if (hero.attribute[ATR_HITPOINTS] > rnd) {
+		hero.attribute[ATR_HITPOINTS] = rnd;
+	};
+
+	_TWI_UnequipItems_IfStatsTooLow();
+};
+

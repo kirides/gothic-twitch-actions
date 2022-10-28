@@ -39,3 +39,40 @@ func void _TWI_ToggleWeapon(var int ItemInst, var int on) {
     CALL_PtrParam(MEM_InstToPtr(item));
     CALL__thiscall(MEM_InstToPtr(slf), oCNpc__EquipWeapon);
 };
+
+
+func void _TWI_oCNpc_EquipArmor(var int npcPtr, var int armorPtr) {
+	const int oCNpc__EquipArmor_G2 = 7578768; // 0073a490
+	const int oCNpc__EquipArmor_G1 = 6910080; // 00697080
+
+	const int call = 0;
+    if (CALL_Begin(call)) {
+        CALL_IntParam (_@(armorPtr));
+        CALL__thiscall(_@(npcPtr), MEMINT_SwitchG1G2(oCNpc__EquipArmor_G1, oCNpc__EquipArmor_G2));
+        call = CALL_End();
+    };
+};
+
+func void _TWI_UnequipArmor(var C_NPC npc) {
+	var C_Item armor; armor = Npc_GetEquippedArmor(npc);
+	if Hlp_IsValidItem(armor) {
+		_TWI_oCNpc_EquipArmor(_@(npc), _@(armor));
+	};
+};
+
+func void _TWI_EquipArmor(var C_NPC npc, var int inst) {
+	var C_Item armor; armor = Npc_GetEquippedArmor(npc);
+	if Hlp_IsValidItem(armor) {
+		if (Hlp_GetInstanceId(armor) == inst) {
+			return; // Already equipped
+		};
+	};
+	if (Hlp_IsValidItem(item)) {
+		var c_item oldItem; oldItem = MEM_CpyInst(item);
+		if (final()) { item = MEM_CpyInst(oldItem); };
+	};
+	// Only if the NPC got the armor
+	if (Npc_GetInvItem(npc, inst)) {
+		_TWI_oCNpc_EquipArmor(_@(npc), _@(item));
+	};
+};
