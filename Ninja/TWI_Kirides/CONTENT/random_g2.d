@@ -54,7 +54,9 @@ func int _TWI_Kirides_IgnoreInstanceNoLimit(var int i, var string instName) {
 	};
 
     // G2 Quest Mobs
-    if (STR_StartsWith(nameUpper, "BEACHLURKER"))
+    if (STR_StartsWith(nameUpper, "DRAGON_"))			// Drachen
+    || (STR_StartsWith(nameUpper, "STONEGUARDIAN_"))	// Viele Steinwaechter
+    || (STR_StartsWith(nameUpper, "BEACHLURKER"))
     || (STR_StartsWith(nameUpper, "BEACHWARAN"))
     || (STR_StartsWith(nameUpper, "BEACHSHADOWBEAST"))
     || (STR_StartsWith(nameUpper, "CANYONRAZOR"))

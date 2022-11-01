@@ -24,6 +24,7 @@ Auch Online lesbar über https://gist.github.com/kirides/a15287fef78b83f9c64c85e
 | xxxx | xxxx |
 | TWI_Money `N` | Spende oder Erhalte `N` Goldstücke/Währung. `TWI_Money 100`, `TWI_Money -50`  |
 | TWI_Southpark `N` | 2x Spielgeschwindigkeit für `N` Sekunden. `TWI_Southpark 10` |
+| TWI_Slowdown `N` | 2.5x Spielgeschwindigkeit für `N` Sekunden. `TWI_Slowdown 10` |
 | TWI_InvertKeyControls `DurationSeconds` | Invertiert die Steuerung für mindestens `DurationSeconds` oder bis erneut aufgerufen |
 | TWI_Time {00-23}  | Setzt die Tageszeit. `TWI_Time 06` bedeutet 06:00. Es gibt alle Zahlen von `0`, `1`, `2`, ...`23` |
 | TWI_Weakest_Weapon  | Es werden die schwächsten Waffen die der Held bei sich trägt angezogen. |
