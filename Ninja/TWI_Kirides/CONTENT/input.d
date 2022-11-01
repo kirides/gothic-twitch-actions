@@ -41,6 +41,7 @@ func void TWI_InvertKeyControls() {
 	if (duration <= 0) { duration = 10; };
 
 	if (_TWI_InvertKeyControls_Active == 0) {
+		_TWI_InvertKeyControls_DurationLeft = duration;
 		_TWI_InvertKeyControls_Active = 1;
 		FF_RemoveAll(_TWI_InvertKeyControls_Revert);
 		FF_ApplyOnceExtGT(_TWI_InvertKeyControls_FF, 1000, -1);
