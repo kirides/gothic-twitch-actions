@@ -5,6 +5,7 @@ CONTENT\spawnhelpers.d
 CONTENT\G2\npc\bandits.d
 CONTENT\G2\npc\orcs.d
 CONTENT\G2\npc\npcs.d
+CONTENT\random_g2.d
 CONTENT\random.d
 CONTENT\input.d
 CONTENT\NinjaInit.d

@@ -11,6 +11,7 @@ Content\spawnhelpers.d
 Content\G1\npc\bandits.d
 Content\G1\npc\orcs.d
 Content\G1\npc\npcs.d
+CONTENT\random_g1.d
 CONTENT\random.d
 CONTENT\input.d
 Content\NinjaInit.d
