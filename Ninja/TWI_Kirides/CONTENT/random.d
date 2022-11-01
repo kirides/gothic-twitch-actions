@@ -465,7 +465,7 @@ func void TWI_SpawnItemRandom() {
 		if (Hlp_IsValidItem(item)){
 			Print(ConcatStrings("Hier liegt irgendwo ", item.description));
 		};
-		Wld_InsertItem(itmIdx, Npc_GetNearestWP(hero));
+		_TWI_InsertItemNpc(hero, itmIdx);
 	};
 };
 
@@ -521,7 +521,7 @@ func void TWI_SpawnRandomItemNoArmorWeapons() {
 		if (Hlp_IsValidItem(item)){
 			Print(ConcatStrings("Hier liegt irgendwo ", item.description));
 		};
-		Wld_InsertItem(itmIdx, Npc_GetNearestWP(hero));
+		_TWI_InsertItemNpc(hero, itmIdx);
 	};
 };
 

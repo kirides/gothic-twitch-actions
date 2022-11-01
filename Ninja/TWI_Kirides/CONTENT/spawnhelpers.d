@@ -272,3 +272,54 @@ func void TWI_SpawnEnemyOneOf() {
 
 	_TWI_SpawnOneOf(user, args, 1);
 };
+
+/*
+	Copy of insertAnything.d, which takes in the instance by index instead of name
+*/
+func int _TWI_InsertItemInstWP(var int itmInst, var int amount, var string wp) {
+    Wld_InsertItem(itmInst, wp);
+
+    var zCTree newTreeNode; newTreeNode = _^(MEM_World.globalVobTree_firstChild);
+    var int itmPtr; itmPtr = newTreeNode.data;
+
+    if (!itmPtr) {
+        MEM_Warn(ConcatStrings("Could not insert item: ", IntToString(itmInst)));
+        return 0;
+    };
+
+    var oCItem itm; itm = _^(itmPtr);
+    itm.amount = amount;
+
+    return itmPtr;
+};
+
+func void _TWI_InsertItemPos(var int inst, var int zVec3PosPtr) {
+	// Beliebigen WP ausfindig machen
+	var int wpPtr; wpPtr = MEM_GetAnyWPPtr();
+	if (!wpPtr) { MEM_Warn("No Waypoint found"); return; };
+
+	var zCWaypoint wp; wp = _^(wpPtr);
+
+	// Sichern der original Position des WP
+	const int posOld[3] = { 0, 0, 0 };
+	MEM_CopyBytes(_@(wp.pos), _@(posOld), 12);
+
+	// Den WP um-platzieren mit unseren gewuenschten Koordinaten
+	MEM_CopyBytes(zVec3PosPtr, _@(wp.pos), 12);
+	
+	var int itmPtr; itmPtr = _TWI_InsertItemInstWP(inst, 1, wp.name);
+	SetVobToFloor(itmPtr);
+	
+	// Original-Position des WP wiederherstellen
+	MEM_CopyBytes(_@(posOld), _@(wp.pos), 12);
+};
+
+func void _TWI_InsertItemNpc(var C_NPC slf, var int itm) {
+	var zCVob vob; vob = MEM_CpyInst(slf);
+	const int posNew[3] = { 0, 0, 0 };
+	posNew[0] = vob.trafoObjToWorld[zCVob_trafoObjToWorld_X];
+	posNew[1] = vob.trafoObjToWorld[zCVob_trafoObjToWorld_Y];
+	posNew[2] = vob.trafoObjToWorld[zCVob_trafoObjToWorld_Z];
+	
+	_TWI_InsertItemPos(itm, _@(posNew));
+};
