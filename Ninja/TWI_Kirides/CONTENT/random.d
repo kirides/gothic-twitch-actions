@@ -151,11 +151,6 @@ func int _TWI_Kirides_GetLevel(var int inst) {
 func int _TWI_Kirides_NpcIsMonster(var int i) {
 	const int npcGuild = 0; npcGuild = _TWI_Kirides_GetGuild(i);
 	if ((npcGuild > GIL_SEPERATOR_HUM) && (npcGuild < GIL_SEPERATOR_ORC)) {
-		const string instName = ""; instName = _PM_InstName(i);
-		if (_TWI_Kirides_IgnoreInstance(i, instName)) {
-			return 0;
-		};
-
 		return 1;
 	};
 	return 0;
@@ -190,14 +185,20 @@ func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 		if ((symb.bitfield & zCPar_Symbol_bitfield_type) != zPAR_TYPE_INSTANCE || STR_IndexOf(symb.name, ".") > 0 || !symb.parent) {
 			continue;
 		};
+		const string instName = ""; instName = symb.name;
 
         symb = _^(symb.parent);
 		if (Hlp_StrCmp(symb.name, "C_NPC")) {
 			if (_TWI_Kirides_NpcIsMonster(i)) {
+				
 				if (_TWI_Kirides_AllMonsters_Initialized == 0) {
-					MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+					if (!_TWI_Kirides_IgnoreInstanceNoLimit(i, instName)) {
+						MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+					};
 				};
-				_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
+				if (!_TWI_Kirides_IgnoreInstance(i, instName)) {
+					_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
+				};
 			};
 		}
 		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
@@ -206,9 +207,13 @@ func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 			if (Hlp_StrCmp(symb.name, "C_NPC")) {
 				if (_TWI_Kirides_NpcIsMonster(i)) {
 					if (_TWI_Kirides_AllMonsters_Initialized == 0) {
-						MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+						if (!_TWI_Kirides_IgnoreInstanceNoLimit(i, instName)) {
+							MEM_ArrayInsert(_TWI_Kirides_AllMonsters_Arr, i);
+						};
 					};
-					_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
+					if (!_TWI_Kirides_IgnoreInstance(i, instName)) {
+						_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
+					};
 				};
 			};
 		};
@@ -558,7 +563,15 @@ func void TWI_RandomStats() {
 	};
 
 	_TWI_UnequipItems_IfStatsTooLow();
+
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
 };
+
+
+const string _TWI_KIRIDES_SECT_RANDSTATS = "TWI_KIRIDES_RANDSTATS";
 
 func void TWI_RandomStatsNoLimit() {
 	const int STRDEX = 0;
@@ -585,10 +598,35 @@ func void TWI_RandomStatsNoLimit() {
 
 	rnd = r_Max(MANA);
 	hero.attribute[ATR_MANA_MAX] = rnd;
-	if (hero.attribute[ATR_HITPOINTS] > rnd) {
-		hero.attribute[ATR_HITPOINTS] = rnd;
+	if (hero.attribute[ATR_MANA] > rnd) {
+		hero.attribute[ATR_MANA] = rnd;
 	};
 
 	_TWI_UnequipItems_IfStatsTooLow();
+
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
 };
 
+
+func void TWI_RandomStats_OnInit() {
+	if (MEM_GothOptExists(_TWI_KIRIDES_SECT_RANDSTATS, "STR")) {
+		var int str;   str = STR_ToInt(MEM_GetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR"));
+		var int dex;   dex = STR_ToInt(MEM_GetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX"));
+		var int hp;     hp = STR_ToInt(MEM_GetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP"));
+		var int mana; mana = STR_ToInt(MEM_GetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA"));
+
+		hero.attribute[ATR_DEXTERITY] = dex;
+		hero.attribute[ATR_STRENGTH] = str;
+		hero.attribute[ATR_HITPOINTS_MAX] = hp;
+		if (hero.attribute[ATR_HITPOINTS] > hp) {
+			hero.attribute[ATR_HITPOINTS] = hp;
+		};
+		hero.attribute[ATR_MANA_MAX] = mana;
+		if (hero.attribute[ATR_MANA] > mana) {
+			hero.attribute[ATR_MANA] = mana;
+		};
+	};
+};

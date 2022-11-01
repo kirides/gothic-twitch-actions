@@ -601,4 +601,5 @@ func void Ninja_TWI_Kirides_Init() {
 	TWI_InvertKeyControls_OnInit();
 	TWI_Southpark_OnInit();
 	TWI_Slowdown_OnInit();
+	TWI_RandomStats_OnInit();
 };
