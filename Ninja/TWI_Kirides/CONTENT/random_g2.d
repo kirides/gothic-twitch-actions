@@ -124,3 +124,49 @@ func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 
 	return 0;
 };
+
+func void _TWI_RandomTalents_GameSpecific() {
+	var int rnd;
+
+	var int talMax;
+	var int talMaxRunes;
+	if (Kapitel >= 0) { talMax =  40; talMaxRunes = 2; };
+	if (Kapitel >= 2) { talMax =  59; talMaxRunes = 3; };
+	if (Kapitel >= 3) { talMax =  80; talMaxRunes = 4; };
+	if (Kapitel >= 4) { talMax = 100; talMaxRunes = 5; };
+	if (Kapitel >= 5) {               talMaxRunes = 6; };
+	if (Kapitel >= 6) { talMax = 100; talMaxRunes = 6; };
+
+	rnd = r_MinMax(0, talMax); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H", 0, rnd);
+	rnd = r_MinMax(0, talMax); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H", 0, rnd);
+	rnd = r_MinMax(0, talMax); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW", 0, rnd);
+	rnd = r_MinMax(0, talMax); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 0, rnd);
+
+	rnd = r_MinMax(0, talMaxRunes);   _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_MAGE", 1, rnd);
+
+	_TWI_Kirides_Npc_FixFightStance(hero);
+};
+
+func void _TWI_RandomTalent_GameSpecific() {
+	var int rnd;
+
+	rnd = r_MinMax(0, 4);
+	if (rnd < 4) {
+		rnd = r_MinMax(0, 100);
+		if      (rnd == 0) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H", 0, rnd); }
+		else if (rnd == 1) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H", 0, rnd); }
+		else if (rnd == 2) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW", 0, rnd); }
+		else if (rnd == 3) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 0, rnd); };
+		_TWI_Kirides_Npc_FixFightStance(hero);
+	} else if (rnd == 4) { rnd = r_MinMax(0, 6);  _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_MAGE", 1, rnd); };
+};
+
+func void _TWI_RandomTalent_GameSpecific_OnInit() {
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_1H");
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_2H");
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_BOW");
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_CROSSBOW");
+
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_MAGE");
+	_TWI_Kirides_Npc_FixFightStance(hero);
+};

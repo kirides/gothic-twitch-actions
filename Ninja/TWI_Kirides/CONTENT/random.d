@@ -570,9 +570,6 @@ func void TWI_RandomStats() {
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
 };
 
-
-const string _TWI_KIRIDES_SECT_RANDSTATS = "TWI_KIRIDES_RANDSTATS";
-
 func void TWI_RandomStatsNoLimit() {
 	const int STRDEX = 0;
 	const int HP = 0;
@@ -610,6 +607,30 @@ func void TWI_RandomStatsNoLimit() {
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
 };
 
+func void TWI_RandomHP_Pct() {
+	if (STR_SplitCount(TwitchIntegration_Arguments, " ") < 2) {
+		MEM_InfoBox(ConcatStrings("Too few arguments, expected 'TWI_RandomHP min max' got: TWI_RandomHP ", TwitchIntegration_Arguments));
+		return;
+	};
+
+	var int min; min = STR_ToInt(STR_Split(TwitchIntegration_Arguments, " ", 0));
+	var int max; max = STR_ToInt(STR_Split(TwitchIntegration_Arguments, " ", 1));
+	if (max > 100) { max = 100; };
+	if (max < 0) { max = 1; };
+	if (min < 0) { min = 0; };
+	if (min > 100) { min = 1; };
+	var int rnd; rnd = r_MinMax(min, max);
+
+	var int val;
+	val = roundf(
+			mulf(
+				divf(mkf(hero.attribute[ATR_HITPOINTS_MAX]), mkf(100)),
+				mkf(rnd)));
+	if (hero.attribute[ATR_HITPOINTS] != val) {
+		hero.attribute[ATR_HITPOINTS] = val;
+	};
+};
+
 
 func void TWI_RandomStats_OnInit() {
 	if (MEM_GothOptExists(_TWI_KIRIDES_SECT_RANDSTATS, "STR")) {
@@ -629,4 +650,17 @@ func void TWI_RandomStats_OnInit() {
 			hero.attribute[ATR_MANA] = mana;
 		};
 	};
+};
+
+
+func void TWI_RandomTalents() {
+	_TWI_RandomTalents_GameSpecific();
+};
+
+func void TWI_RandomTalents_OnInit() {
+	_TWI_RandomTalent_GameSpecific_OnInit();
+};
+
+func void TWI_RandomTalent() {
+	_TWI_RandomTalent_GameSpecific();
 };

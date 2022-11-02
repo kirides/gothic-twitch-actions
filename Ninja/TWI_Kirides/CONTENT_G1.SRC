@@ -1,10 +1,13 @@
 Ikarus
 LeGo
 
+Content\consts_g1.d
 Content\consts.d
-Content\engine.d
 
 Content\AFSP\_headers_G1_All.src
+
+Content\engine_g1.d
+Content\engine.d
 
 CONTENT\utils.d
 Content\spawnhelpers.d

@@ -1,6 +1,8 @@
 Content\AFSP\_headers_G2_All.src
 
+Content\consts.d
 CONTENT\utils.d
+CONTENT\utils_g2.d
 CONTENT\spawnhelpers.d
 CONTENT\G2\npc\bandits.d
 CONTENT\G2\npc\orcs.d

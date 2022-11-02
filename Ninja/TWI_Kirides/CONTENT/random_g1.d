@@ -96,3 +96,53 @@ func int _TWI_Kirides_IgnoreInstance(var int i, var string instName) {
 
 	return 0;
 };
+
+func void _TWI_RandomTalents_GameSpecific() {
+	var int rnd;
+
+	rnd = r_MinMax(0, 2); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H", 1, rnd);
+	rnd = r_MinMax(0, 15); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H", 0, rnd);
+
+	rnd = r_MinMax(0, 2); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H", 1, rnd);
+	rnd = r_MinMax(0, 15); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H", 0, rnd);
+
+	rnd = r_MinMax(0, 2); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW", 1, rnd);
+	rnd = r_MinMax(0, 15); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW", 0, rnd);
+
+	rnd = r_MinMax(0, 2); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 1, rnd);
+	rnd = r_MinMax(0, 15); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 0, rnd);
+
+	rnd = r_MinMax(0, 6);   _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_MAGE", 1, rnd);
+};
+
+func void _TWI_RandomTalent_GameSpecific() {
+	var int rnd;
+	var int rnd2;
+
+	rnd = r_MinMax(0, 4);
+	if (rnd < 4) {
+		rnd = r_MinMax(0, 2);
+		rnd2 = r_MinMax(0, 15);
+		if        (rnd == 0) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H", 1, rnd); 
+							   _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H", 0, rnd2);
+
+		} else if (rnd == 1) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H", 1, rnd); 
+							   _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H", 0, rnd2);
+
+		} else if (rnd == 2) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW", 1, rnd); 
+							   _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW", 0, rnd2);
+
+		} else if (rnd == 3) { _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 1, rnd); 
+							   _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 0, rnd2);};
+	} else if (rnd == 4) { rnd = r_MinMax(0, 6);  _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_MAGE", 1, rnd); };
+};
+
+func void _TWI_RandomTalent_GameSpecific_OnInit() {
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_1H");
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_2H");
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_BOW");
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_CROSSBOW");
+
+	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_MAGE");
+};
+

@@ -2,10 +2,12 @@ Ikarus
 LeGo
 
 Content\engine.d
+Content\consts.d
 
 Content\AFSP\_headers_G2_All.src
 
 CONTENT\utils.d
+CONTENT\utils_g2.d
 Content\spawnhelpers.d
 Content\G2\npc\bandits.d
 Content\G2\npc\orcs.d
