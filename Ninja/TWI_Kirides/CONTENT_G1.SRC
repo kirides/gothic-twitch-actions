@@ -17,4 +17,8 @@ Content\G1\npc\npcs.d
 CONTENT\random_g1.d
 CONTENT\random.d
 CONTENT\input.d
+CONTENT\hp_mana.d
+CONTENT\speed.d
+CONTENT\sound.d
+CONTENT\money.d
 Content\NinjaInit.d

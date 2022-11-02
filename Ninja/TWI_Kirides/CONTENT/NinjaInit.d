@@ -109,28 +109,6 @@ func void TWI_Raid_Orcs() {
 	};
 };
 
-const int TWI_Kirides_CurrencyIdx = -1;
-const string TWI_Kirides_CurrencyName = "ITMI_GOLD";
-const string TWI_Kirides_CurrencyDisplay = "Geld";
-
-func void _TWI_PlaySound(var string name) {
-	const int fnId = -1; fnId = MEM_FindParserSymbol("AI_Snd_Play");
-	if (fnId != -1) {
-		MEM_PushInstParam(hero);
-		MEM_PushStringParam(name);
-		MEM_CallByID(fnId);
-	} else {
-		Snd_Play(name);
-	};
-};
-
-func string _TWI_CS3(var string a, var string b, var string c) {
-	return ConcatStrings(a, ConcatStrings(b, c));
-};
-func string _TWI_CS4(var string a, var string b, var string c, var string d) {
-	return ConcatStrings(a, ConcatStrings(b, ConcatStrings(c, d)));
-};
-
 const int _TWI_Shrink_IsShrunken = 0;
 func void _FF_TWI_Shrink_Undo() {
 	_TWI_Shrink_IsShrunken = 0;
@@ -156,171 +134,6 @@ func void TWI_Shrink() {
 	FF_ApplyOnceExtGT(_FF_TWI_Shrink_ReApply, 1000, -1);
 };
 
-func void _TWI_Donation_N(var int n) {
-	if (n <= 0) { MEM_Info("TWI: amount <= 0"); return; };
-	if (!Hlp_IsValidNpc(hero)) { MEM_Info("TWI: hero invalid"); return; };
-	if (TWI_Kirides_CurrencyIdx == -1) { MEM_Info("TWI: No currency found"); return; };
-
-	MEM_Info(ConcatStrings("_TWI_Donation_N: ", IntToString(n)));
-
-	const int amt = 0; amt = Npc_HasItems(hero, TWI_Kirides_CurrencyIdx);
-
-	if (amt == 0) { MEM_Info("TWI: Not enough money!"); return; };
-	
-	if amt < 50 {
-		if (amt >= 30) {
-			Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, 10);
-			_TWI_PlaySound("DIA_DARON_SPENDEN_10_04.WAV"); // nun, du hast nicht viel, aber arm bist du auch nicht. 10 Goldstücke für innos, wir sind ja genügsam.
-			Print(ConcatStrings("Du spendest 10 ", TWI_Kirides_CurrencyDisplay));
-		} else {
-			_TWI_PlaySound("DIA_DARON_SPENDEN_10_03.WAV"); // hm, du bist ein armer schlucker was, behalte das bisschen was du hast.
-		};
-	}
-	else if (n >= 1000 && amt >= n) {
-		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_02.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
-	}
-	else if (n >=  500 && amt >= n) {
-		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_02.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
-	}
-	else if (n >=  100 && amt >= n) {
-		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_06.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
-	}
-	else if (n >=   50 && amt >= n) {
-		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_07.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
-	} else {
-		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, amt);
-		Print(_TWI_CS4("Du spendest ", IntToString(amt), " ", TWI_Kirides_CurrencyDisplay));
-	};
-};
-func void _TWI_AddMoney(var int n) {
-	if (n <= 0) { MEM_Info("TWI: amount <= 0"); return; };
-	if (!Hlp_IsValidNpc(hero)) { MEM_Info("TWI: hero invalid"); return; };
-	if (TWI_Kirides_CurrencyIdx == -1) { MEM_Info("TWI: No currency found"); return; };
-
-	CreateInvItems(hero, TWI_Kirides_CurrencyIdx, n);
-	Print(_TWI_CS4("Du erhältst ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
-};
-
-func void TWI_PlaySound() { _TWI_PlaySound(TwitchIntegration_Arguments); };
-
-func void TWI_Money() {
-	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
-	if (amount < 0) {
-		_TWI_Donation_N(-amount);
-	} else if (amount > 0) {
-		_TWI_AddMoney(amount);
-	};
-};
-
-const int _TWI_Kirides_Southpark_Counter = 0;
-const int _TWI_Kirides_Southpark_Max = 0;
-
-const int _TWI_Kirides_Slowdown_Counter = 0;
-const int _TWI_Kirides_Slowdown_Max = 0;
-
-func void _TWI_Kirides_Southpark_FF() {
-	if (_TWI_Kirides_Southpark_Max == 0) {
-		return;
-	};
-	_TWI_Kirides_Southpark_Counter += 1;
-	if (_TWI_Kirides_Southpark_Counter > _TWI_Kirides_Southpark_Max) {
-		_TWI_Kirides_Southpark_Max = 0;
-		FF_RemoveAll(_TWI_Kirides_Southpark_FF);
-		return;
-	};
-	if (!InfoManager_Hasfinished()) { return; };
-
-	MEM_Timer.factorMotion = mkf(2);
-};
-
-func void _TWI_Kirides_Southpark_Reset() {
-	if ((_TWI_Kirides_Southpark_Max <= 0)) {
-		FF_RemoveAll(_TWI_Kirides_Southpark_FF);
-	};
-	if ((_TWI_Kirides_Slowdown_Max <= 0)) {
-		FF_RemoveAll(_TWI_Slowdown_FF);
-	};
-
-	if ((_TWI_Kirides_Southpark_Max <= 0)
-	&& (_TWI_Kirides_Slowdown_Max <= 0)) {
-		MEM_Timer.factorMotion = FLOATONE;
-	};
-};
-
-func void _TWI_Southpark_N(var int n) {
-	if (_TWI_Kirides_Southpark_Max != 0)      { return; };
-	if (FF_Active(_TWI_Kirides_Southpark_FF)) { return; };
-	
-	_TWI_Kirides_Slowdown_Max = 0;
-	FF_RemoveAll(_TWI_Slowdown_FF);
-	
-	MEM_Info(ConcatStrings("_TWI_Southpark_N: ", IntToString(n)));
-
-	_TWI_Kirides_Southpark_Counter = 0;
-	_TWI_Kirides_Southpark_Max = n;
-	FF_ApplyOnceExtGT(_TWI_Kirides_Southpark_FF, 1000, -1);
-};
-
-func void TWI_Southpark()  { 	
-	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
-	if (amount > 0) {
-		_TWI_Southpark_N(amount);
-	};
-};
-
-func void _TWI_Slowdown_FF() {
-	if (_TWI_Kirides_Slowdown_Max == 0) {
-		FF_RemoveAll(_TWI_Slowdown_FF);
-		return;
-	};
-	_TWI_Kirides_Slowdown_Counter += 1;
-	if (_TWI_Kirides_Slowdown_Counter > _TWI_Kirides_Slowdown_Max) {
-		_TWI_Kirides_Slowdown_Max = 0;
-		FF_RemoveAll(_TWI_Slowdown_FF);
-		return;
-	};
-	if (!InfoManager_Hasfinished()) { return; };
-
-	MEM_Timer.factorMotion = fracf(1, 2);
-};
-
-func void _TWI_Slowdown_N(var int n) {
-	if (_TWI_Kirides_Slowdown_Max != 0) { return; };
-	if (FF_Active(_TWI_Slowdown_FF)) 	{ return; };
-	_TWI_Kirides_Southpark_Max = 0;
-	_TWI_Kirides_Southpark_Reset();
-	
-	MEM_Info(ConcatStrings("_TWI_Slowdown_N: ", IntToString(n)));
-
-	_TWI_Kirides_Slowdown_Counter = 0;
-	_TWI_Kirides_Slowdown_Max = n;
-	FF_ApplyOnceExtGT(_TWI_Slowdown_FF, 1000, -1);
-};
-
-func void TWI_Slowdown()  { 	
-	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
-	if (amount > 0) {
-		_TWI_Slowdown_N(amount);
-	};
-};
-
-
-func void TWI_Southpark_OnInit()  { 	
-	if (_TWI_Kirides_Southpark_Max != 0) {
-		FF_ApplyOnceExtGT(_TWI_Kirides_Southpark_FF, 1000, -1);
-	};
-	FF_ApplyOnceExt(_TWI_Kirides_Southpark_Reset, 100, -1);
-};
-
-func void TWI_Slowdown_OnInit()  { 	
-	if (_TWI_Kirides_Slowdown_Max != 0) {
-		FF_ApplyOnceExtGT(_TWI_Slowdown_FF, 1000, -1);
-	};
-};
 
 
 func void _TWI_Kirides_Time(var int hour) {
@@ -344,87 +157,6 @@ func int _Validate_SPL_Id(var string symbolName, var int number) {
 		};
 	};
 	return 0;
-};
-
-func void _TWI_SetMana_0() {
-	Npc_ChangeAttribute(hero, ATR_MANA, -hero.attribute[ATR_MANA]);
-};
-
-func void _TWI_SetHP(var int n) {
-	MEM_Info(ConcatStrings("_TWI_SetHP: ", IntToString(n)));
-	if hero.attribute[ATR_HITPOINTS] == 0 {
-		return;
-	};
-	var int maxHp; maxHp = hero.attribute[ATR_HITPOINTS_MAX];
-	if (n <= 0) {
-		return;
-	};
-	if (n > maxHp) {
-		n = maxHp;
-	};
-	const int hp = 0; hp = -hero.attribute[ATR_HITPOINTS];
-	hp += n;
-	Npc_ChangeAttribute(hero, ATR_HITPOINTS, hp);
-};
-
-func void TWI_SetHP() {
-	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
-	if (amount > 0) {
-		_TWI_SetHP(amount);
-	};
-};
-
-func void _TWI_SetMana(var int n) {
-	MEM_Info(ConcatStrings("_TWI_SetMana: ", IntToString(n)));
-	
-	var int maxMana; maxMana = hero.attribute[ATR_MANA_MAX];
-	if (n < 0) {
-		return;
-	};
-	if (n > maxMana) {
-		n = maxMana;
-	};
-	const int hp = 0; hp = -hero.attribute[ATR_MANA];
-	hp += n;
-	Npc_ChangeAttribute(hero, ATR_MANA, hp);
-};
-
-func void TWI_SetMana() {
-	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
-	if (amount > 0) {
-		_TWI_SetMana(amount);
-	};
-};
-
-func void _TWI_SetHP_1() { _TWI_SetHP(1); };
-func void _TWI_SetMana_0() { _TWI_SetMana(0); };
-
-func void _TWI_SetHP_N(var int n)   { _TWI_SetHP(n); };
-func void _TWI_SetMana_N(var int n) { _TWI_SetMana(n); };
-
-func void _TWI_SetMana_0_Timed(var int timeMs) {
-	const int cycles = 0; cycles = timeMs / 100;
-	FF_ApplyOnceExtGT(_TWI_SetMana_0, 100, cycles);
-};
-
-func void _TWI_SetHP_1_Timed(var int timeMs) {
-	const int cycles = 0; cycles = timeMs / 100;
-	FF_ApplyOnceExtGT(_TWI_SetHP_1, 100, cycles);
-};
-
-func void TWI_SetHP_1_5s()   { _TWI_SetHP_1_Timed( 5000); };
-func void TWI_SetHP_1_15s()   { _TWI_SetHP_1_Timed( 15000); };
-func void TWI_SetHP_1_30s()   { _TWI_SetHP_1_Timed( 30000); };
-func void TWI_SetHP_1_60s()  { _TWI_SetHP_1_Timed( 60000); };
-
-func void TWI_SetMana_0_5s() { _TWI_SetMana_0_Timed( 5000); };
-func void TWI_SetMana_0_15s() { _TWI_SetMana_0_Timed( 15000); };
-func void TWI_SetMana_0_30s() { _TWI_SetMana_0_Timed( 30000); };
-func void TWI_SetMana_0_60s() { _TWI_SetMana_0_Timed( 60000); };
-
-func void TWI_FullHeal() {
-	Npc_ChangeAttribute(hero, ATR_MANA, hero.attribute[ATR_MANA_MAX]);
-	Npc_ChangeAttribute(hero, ATR_HITPOINTS, hero.attribute[ATR_HITPOINTS_MAX]);
 };
 
 /// @param category [ITEM_KAT_FF,  ITEM_KAT_NF]
@@ -563,29 +295,6 @@ func void TWI_VoicePitch() {
 	hero.voicePitch = amount;
 };
 
-func void _TWI_Init_Currency() {
-	if (GOTHIC_BASE_VERSION == 1) {
-		TWI_Kirides_CurrencyName = "ITMINUGGET";
-	};
-
-	// automatically find the current currency. Is required for G2A, don't know G1
-	var int currency; currency = MEM_GetSymbol("TRADE_CURRENCY_INSTANCE");
-    if (currency) {
-        var zCPar_Symbol currencySymb; currencySymb = _^(currency);
-        TWI_Kirides_CurrencyName = MEM_ReadString(currencySymb.content);
-	};
-	TWI_Kirides_CurrencyIdx = MEM_FindParserSymbol(TWI_Kirides_CurrencyName);
-	if (TWI_Kirides_CurrencyIdx != -1) {
-		MEMINT_GetMemHelper();
-		CreateInvItem(MEM_Helper, TWI_Kirides_CurrencyIdx);
-		Npc_GetInvItem(MEM_Helper, TWI_Kirides_CurrencyIdx);
-
-		if (Hlp_IsValidItem(item)) {
-			TWI_Kirides_CurrencyDisplay = item.name;
-		};
-	};
-};
-
 /// Init-function called by Ninja
 func void Ninja_TWI_Kirides_Init() {
 	// Initialize Ikarus
@@ -595,11 +304,12 @@ func void Ninja_TWI_Kirides_Init() {
 	const int once = 1;
 	if (once) {
 		once = 0;
-		_TWI_Init_Currency();
+		TWI_Kirides_Money_OnInit();
 	};
 	
 	TWI_InvertKeyControls_OnInit();
 	TWI_Southpark_OnInit();
 	TWI_Slowdown_OnInit();
 	TWI_RandomStats_OnInit();
+	TWI_Kirides_HP_MANA_OnInit();
 };

@@ -76,3 +76,21 @@ func void _TWI_EquipArmor(var C_NPC npc, var int inst) {
 		_TWI_oCNpc_EquipArmor(_@(npc), _@(item));
 	};
 };
+
+func void _TWI_PlaySound(var string name) {
+	const int fnId = -1; fnId = MEM_FindParserSymbol("AI_Snd_Play");
+	if (fnId != -1) {
+		MEM_PushInstParam(hero);
+		MEM_PushStringParam(name);
+		MEM_CallByID(fnId);
+	} else {
+		Snd_Play(name);
+	};
+};
+
+func string _TWI_CS3(var string a, var string b, var string c) {
+	return ConcatStrings(a, ConcatStrings(b, c));
+};
+func string _TWI_CS4(var string a, var string b, var string c, var string d) {
+	return ConcatStrings(a, ConcatStrings(b, ConcatStrings(c, d)));
+};
