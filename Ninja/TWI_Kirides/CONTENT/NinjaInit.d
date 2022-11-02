@@ -378,7 +378,7 @@ func void _TWI_SetMana(var int n) {
 	MEM_Info(ConcatStrings("_TWI_SetMana: ", IntToString(n)));
 	
 	var int maxMana; maxMana = hero.attribute[ATR_MANA_MAX];
-	if (n <= 0) {
+	if (n < 0) {
 		return;
 	};
 	if (n > maxMana) {
