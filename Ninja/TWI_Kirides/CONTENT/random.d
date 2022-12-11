@@ -307,25 +307,136 @@ func void TWI_SpawnRandomMonsterNoLimit() {
 };
 
 const int _TWI_SpawnItemRandom_Array = 0;
+
+func int _TWI_Filter_Items(var string itemInst) {
+	// DEV Items G2
+	if Hlp_StrCmp(itemInst, "ItPo_Story") // Macht, daß es weitergeht bei Raven Video I
+	|| Hlp_StrCmp(itemInst, "Armor")      // Ein Beutel voller Rüstungen!
+	|| Hlp_StrCmp(itemInst, "Runenbrief")
+	|| Hlp_StrCmp(itemInst, "EnterBanditCamp") // Komm ins BanditCamp
+	|| Hlp_StrCmp(itemInst, "PH")           // Gimme Magic
+	|| Hlp_StrCmp(itemInst, "Hosh4")        // Greg ist Back
+	|| Hlp_StrCmp(itemInst, "J2")           // Greg_Taverne
+	|| Hlp_StrCmp(itemInst, "J3")           // ADW_ADANOSTEMPEL_RemovedFocus
+	|| Hlp_StrCmp(itemInst, "J4")           // ADW_PIRATES_RemovedFocus und letzte
+	|| Hlp_StrCmp(itemInst, "DJG_inserten") // JOLY_Storyhelpletter
+	|| Hlp_StrCmp(itemInst, "JOLY_ITEM")    // Compiling Visual Dummy item
+	|| Hlp_StrCmp(itemInst, "JI1")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI2")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI3")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI4")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI5")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI6")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI7")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI8")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI9")   // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI10")  // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI11")  // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI12")  // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "JI13")  // ADDON_PLANTS_...
+	|| Hlp_StrCmp(itemInst, "MobsiBrief")
+	|| Hlp_StrCmp(itemInst, "ItSe_Addon_Sack")  // Der Sack ist voller neuer Waffen!
+	|| Hlp_StrCmp(itemInst, "ItFo_TestTrigger") // Trigger die Adw
+	// Duplicated items / Game Breaking items
+	|| Hlp_StrCmp(itemInst, "ItMi_InnosEye_Broken_Mis")
+	|| Hlp_StrCmp(itemInst, "ItMi_InnosEye_MIS")
+	|| Hlp_StrCmp(itemInst, "ItMi_InnosEye_Discharged_Mis")
+	|| Hlp_StrCmp(itemInst, "ItMi_InnosEye_Broken_Mis")
+	|| Hlp_StrCmp(itemInst, "ItMi_PortalRing_Addon")
+	|| Hlp_StrCmp(itemInst, "ItMi_Ornament_Addon")
+	|| Hlp_StrCmp(itemInst, "ItMi_Ornament_Addon_Vatras")
+	|| Hlp_StrCmp(itemInst, "Holy_Hammer_MIS")
+	|| Hlp_StrCmp(itemInst, "ItWr_Schuldenbuch")
+	|| Hlp_StrCmp(itemInst, "ItRi_Ranger_Lares_Addon")
+	|| Hlp_StrCmp(itemInst, "ItSe_GoldPocket100_Greg")  // Gregs treasure
+	|| Hlp_StrCmp(itemInst, "ItMi_GoldCup_Greg")        // Gregs treasure
+	|| Hlp_StrCmp(itemInst, "ItMi_SilverChalice_Greg")  // Gregs treasure
+	|| Hlp_StrCmp(itemInst, "ItAm_Prot_Point_01_Greg")  // Gregs treasure
+	|| Hlp_StrCmp(itemInst, "ItMi_Addon_Bloodwyn_Kopf")
+	|| Hlp_StrCmp(itemInst, "ITWR_Addon_GregsLogbuch_Mis")
+	|| Hlp_StrCmp(itemInst, "ItRw_Bow_L_03_MIS")    // Bospers Bogen
+	|| Hlp_StrCmp(itemInst, "ItMi_CoragonsSilber")  // Coragorns Silber
+	// Klaue Beliars
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_Raven")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_02")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_03")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_04")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_05")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_06")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_07")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_08")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_09")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_10")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_11")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_12")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_13")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_14")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_15")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_16")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_17")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_18")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_19")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_1H_20")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_02")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_03")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_04")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_05")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_06")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_07")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_08")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_09")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_10")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_11")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_12")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_13")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_14")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_15")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_16")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_17")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_18")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_19")
+	|| Hlp_StrCmp(itemInst, "ItMw_BeliarWeapon_2H_20")
+
+	// DEV ITEM G1
+	|| Hlp_StrCmp(itemInst, "Lester_Bugfixbook") // Schicke Lester nach Hause
+	|| Hlp_StrCmp(itemInst, "Lukor_Bugfixbook")  // Zwinge Baal Lukor in den Followmode
+	|| Hlp_StrCmp(itemInst, "ItWrLevelMap")      // Map of Test Level
+	|| Hlp_StrCmp(itemInst, "ItWrBookOfTales")   // Book of Tales
+	// || Hlp_StrCmp(itemInst, "ItMw1hSwordBurning") // Legendary short sword of burning
+	// || Hlp_StrCmp(itemInst, "ItMw2hSwordBurning") // Legendary heavy sword of burning
+	// || Hlp_StrCmp(itemInst, "ItRwWarBowBurning")  // Legendary bow of burning
+	// || Hlp_StrCmp(itemInst, "ItArRobeMithril")    // Ledengary mithril robe
+	{
+		return 0;
+	};
+
+	return 1;
+};
+
 func int _TWI_SpawnItemRandom_CollectAll() {
 	var int array; array = MEM_ArrayCreate();
 	const int i = 0; i = 0;
-
+	var string itemName;
 	repeat(i, MEM_Parser.symtab_table_numInArray);
 		var zCPar_Symbol symb; symb = _^(MEM_ReadIntArray(MEM_Parser.symtab_table_array, i));
 
 		if ((symb.bitfield & zCPar_Symbol_bitfield_type) != zPAR_TYPE_INSTANCE || STR_IndexOf(symb.name, ".") > 0 || !symb.parent) {
 			continue;
 		};
+		itemName = symb.name;
 
         symb = _^(symb.parent);
 		if (Hlp_StrCmp(symb.name, "C_ITEM")) {
-			MEM_ArrayPush(array, i);
+			if (_TWI_Filter_Items(itemName)) {
+				MEM_ArrayPush(array, i);
+			};
 		}
 		else if (symb.parent && (symb.bitfield & zCPar_Symbol_bitfield_type) == zPAR_TYPE_PROTOTYPE) {
 			symb = _^(symb.parent);
 			if (Hlp_StrCmp(symb.name, "C_ITEM")) {
-				MEM_ArrayPush(array, i);
+				if (_TWI_Filter_Items(itemName)) {
+					MEM_ArrayPush(array, i);
+				};
 			};
 		};
 	end;
@@ -355,7 +466,7 @@ func void TWI_RandomWaypoint() {
 
 func void TWI_SpawnItemRandom() {
 	if (_TWI_SpawnItemRandom_Array == 0) {
-		_TWI_SpawnItemRandom_Array = _TWI_SpawnItemRandom_CollectAll();
+		_TWI_SpawnItemRandom_Array = +_TWI_SpawnItemRandom_CollectAll();
 	};
 
 	const int totalItems = -1; totalItems = MEM_ArraySize(_TWI_SpawnItemRandom_Array);
@@ -381,7 +492,7 @@ func void TWI_SpawnItemRandom() {
 const int _TWI_SpawnRandomItemNoArmorWeapons_Array = 0;
 func int _TWI_SpawnRandomItemNoArmorWeapons_CollectAll() {
 	if (_TWI_SpawnItemRandom_Array == 0) {
-		_TWI_SpawnItemRandom_Array = _TWI_SpawnItemRandom_CollectAll();
+		_TWI_SpawnItemRandom_Array = +_TWI_SpawnItemRandom_CollectAll();
 	};
 
 	const int idx_C_Item_MainFlag = -1;
