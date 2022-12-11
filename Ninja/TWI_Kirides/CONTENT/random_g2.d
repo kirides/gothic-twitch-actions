@@ -73,6 +73,9 @@ func int _TWI_Kirides_IgnoreInstanceNoLimit(var int i, var string instName) {
     || (STR_StartsWith(nameUpper, "NEWMINE_LEADSNAPPER")) // kap 2 Quest
     || (STR_StartsWith(nameUpper, "MIS_ADDON_SWAMPSHARK_")) // Bandit Quest
     || (STR_StartsWith(nameUpper, "PEPES_YWOLF")) // Pepe Quest
+    || (STR_StartsWith(nameUpper, "Balthasar_Sheep1"))
+    || (STR_StartsWith(nameUpper, "Balthasar_Sheep2"))
+    || (STR_StartsWith(nameUpper, "Balthasar_Sheep3"))
     {
         MEM_Debug("Skip known npc");
         return 1;

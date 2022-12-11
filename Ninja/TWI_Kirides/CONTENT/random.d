@@ -156,7 +156,8 @@ func int _TWI_Kirides_NpcIsMonster(var int i) {
 	return 0;
 };
 func void _TWI_Kirides_OnNpcInstance(var int array, var int i, var int maxLevel) {
-	if (_TWI_Kirides_GetLevel(i) > maxLevel) {
+	const int level = 0; level = +_TWI_Kirides_GetLevel(i);
+	if (level > maxLevel) {
 		return;
 	};
 
@@ -240,6 +241,11 @@ func int _TWI_Math_Min(var int a, var int b) {
 	if (a < b) { return a; };
 	return b;
 };
+func int _TWI_Math_Max(var int a, var int b) {
+	if (a > b) { return a; };
+	return b;
+};
+
 func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var int limitByLevel) {
 	const int maxMonsters = -1;
 	const int currentChp = 6;
@@ -254,13 +260,21 @@ func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var i
 			currentChp = Kapitel;
 			maxMonsters = -1;
 
-			if      (currentChp == 1 && heroLvl < 5)  { maxLevel = _TWI_Math_Min(hero.level+5, 8); }
-			else if (currentChp == 2 && heroLvl < 12) { maxLevel = _TWI_Math_Min(hero.level+5, 12); }
-			else if (currentChp == 3 && heroLvl < 16) { maxLevel = _TWI_Math_Min(hero.level+5, 16); }
-			else if (currentChp == 4 && heroLvl < 19) { maxLevel = _TWI_Math_Min(hero.level+5, 19); }
-			else if (currentChp == 5 && heroLvl < 20) { maxLevel = _TWI_Math_Min(hero.level+5, 24); }
-			else                                      { maxLevel = 99999; }
-			;
+			if (GOTHIC_BASE_VERSION == 1) {
+				if      (currentChp <= 1 && heroLvl <  5) { maxLevel = _TWI_Math_Min(hero.level+5,  8); }
+				else if (currentChp <= 2 && heroLvl < 12) { maxLevel = _TWI_Math_Min(hero.level+5, 12); }
+				else if (currentChp <= 3 && heroLvl < 16) { maxLevel = _TWI_Math_Min(hero.level+5, 16); }
+				else if (currentChp <= 4 && heroLvl < 19) { maxLevel = _TWI_Math_Min(hero.level+5, 19); }
+				else if (currentChp <= 5 && heroLvl < 20) { maxLevel = _TWI_Math_Min(hero.level+5, 24); }
+				else                                      { maxLevel = 99999; };
+			} else {
+				if      (currentChp <= 1 && heroLvl <  5) { maxLevel = _TWI_Math_Max(hero.level+5,  8); }
+				else if (currentChp <= 2 && heroLvl < 12) { maxLevel = _TWI_Math_Max(hero.level+5, 12); }
+				else if (currentChp <= 3 && heroLvl < 16) { maxLevel = _TWI_Math_Max(hero.level+5, 16); }
+				else if (currentChp <= 4 && heroLvl < 19) { maxLevel = _TWI_Math_Max(hero.level+5, 20); }
+				else if (currentChp <= 5 && heroLvl < 20) { maxLevel = _TWI_Math_Max(hero.level+5, 25); }
+				else                                      { maxLevel = 99999; };
+			};
 			_TWI_Kirides_CollectMonsters(maxLevel);
 		};
 		if (_TWI_Kirides_LimitedMonsters_Arr == 0) {
@@ -679,6 +693,8 @@ func void TWI_RandomStats() {
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
+
+	Snd_Play("LEVELUP");
 };
 
 func void TWI_RandomStatsNoLimit() {
@@ -716,6 +732,8 @@ func void TWI_RandomStatsNoLimit() {
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
+
+	Snd_Play("LEVELUP");
 };
 
 func void TWI_RandomHP_Pct() {
