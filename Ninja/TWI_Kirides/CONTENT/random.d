@@ -9,6 +9,7 @@ func int _TWI_MEM_SizeOf_C_NPC() {
 };
 
 const int _TWI_Kirides_AllMonsters_Arr = 0;
+const int _TWI_Kirides_AllMonstersLimited_Arr = 0;
 const int _TWI_Kirides_LimitedMonsters_Arr = 0;
 
 func void _TWI_Kirides_ClearInventory(var C_NPC npc) {
@@ -165,9 +166,13 @@ func void _TWI_Kirides_OnNpcInstance(var int array, var int i, var int maxLevel)
 };
 
 const int _TWI_Kirides_AllMonsters_Initialized = 0;
+
 func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 	if (_TWI_Kirides_AllMonsters_Arr == 0) {
 		_TWI_Kirides_AllMonsters_Arr = MEM_ArrayCreate();
+	};
+	if (_TWI_Kirides_AllMonstersLimited_Arr == 0) {
+		_TWI_Kirides_AllMonstersLimited_Arr = MEM_ArrayCreate();
 	};
 	if (_TWI_Kirides_LimitedMonsters_Arr == 0) {
 		_TWI_Kirides_LimitedMonsters_Arr = MEM_ArrayCreate();
@@ -198,6 +203,9 @@ func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 					};
 				};
 				if (!_TWI_Kirides_IgnoreInstance(i, instName)) {
+					if (_TWI_Kirides_AllMonsters_Initialized == 0) {
+						MEM_ArrayInsert(_TWI_Kirides_AllMonstersLimited_Arr, i);
+					};
 					_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
 				};
 			};
@@ -213,6 +221,9 @@ func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 						};
 					};
 					if (!_TWI_Kirides_IgnoreInstance(i, instName)) {
+						if (_TWI_Kirides_AllMonsters_Initialized == 0) {
+							MEM_ArrayInsert(_TWI_Kirides_AllMonstersLimited_Arr, i);
+						};
 						_TWI_Kirides_OnNpcInstance(_TWI_Kirides_LimitedMonsters_Arr, i, maxLevel);
 					};
 				};
@@ -235,15 +246,6 @@ func int _TWI_Kirides_CollectMonsters(var int maxLevel) {
 	MEM_SetUseInstance(instBak);
 	
 	return +MEM_ArraySize(_TWI_Kirides_AllMonsters_Arr);
-};
-
-func int _TWI_Math_Min(var int a, var int b) {
-	if (a < b) { return a; };
-	return b;
-};
-func int _TWI_Math_Max(var int a, var int b) {
-	if (a > b) { return a; };
-	return b;
 };
 
 func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var int limitByLevel) {
@@ -300,6 +302,60 @@ func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var i
 	end;
 };
 
+func void _TWI_Kirides_ScaleDown(var C_NPC slf, var C_NPC target) {
+	if (slf.level <= target.level) { return; };
+	var int slfLevel; slfLevel = slf.level;
+
+	var int byFrac; byFrac = fracf(target.level, slfLevel);
+	var int atrVal;
+	if (slf.attribute[ATR_STRENGTH] > 10) {
+		atrVal = _TWI_Math_Min(150, slf.attribute[ATR_STRENGTH]);
+		slf.attribute[ATR_STRENGTH] = _TWI_Lerp(byFrac, atrVal / 7, atrVal);
+	};
+
+	slf.attribute[ATR_HITPOINTS]     = _TWI_Lerp(byFrac, slf.attribute[ATR_HITPOINTS_MAX] / 2, slf.attribute[ATR_HITPOINTS_MAX]);
+	slf.attribute[ATR_HITPOINTS_MAX] = slf.attribute[ATR_HITPOINTS];
+
+	var int defVal;
+	if (slf.protection[PROT_MAGIC] > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_MAGIC]); slf.protection[PROT_MAGIC] = _TWI_Lerp(byFrac, defVal / 15, defVal); };
+	if (slf.protection[PROT_BLUNT] > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_BLUNT]); slf.protection[PROT_BLUNT] = _TWI_Lerp(byFrac, defVal / 15, defVal); };
+	if (slf.protection[PROT_EDGE]  > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_EDGE]);  slf.protection[PROT_EDGE]  = _TWI_Lerp(byFrac, defVal / 15, defVal); };
+	if (slf.protection[PROT_POINT] > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_POINT]); slf.protection[PROT_POINT] = _TWI_Lerp(byFrac, defVal / 15, defVal); };
+	if (slf.protection[PROT_FIRE]  > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_FIRE]);  slf.protection[PROT_FIRE]  = _TWI_Lerp(byFrac, defVal / 15, defVal); };
+
+	slf.level = _TWI_Lerp(byFrac, target.level, slfLevel);
+	if (slf.level < 1) { slf.level = 1; };
+
+	var float byFracF; byFracF = castFromIntf(_TWI_LerpF(byFrac, fracf(80, 100), FLOATONE));
+	Mdl_SetModelScale(slf, byFracF, byFracF, byFracF);
+};
+
+
+func void _TWI_Kirides_SpawnRandomMonsterScaled(var string user, var int amount) {
+	const int maxMonsters = -1;
+	const int usedArray = 0;
+
+	if (!_TWI_Kirides_AllMonsters_Initialized) {
+		_TWI_Kirides_CollectMonsters(1);
+	};
+	// usedArray = _TWI_Kirides_AllMonsters_Arr;
+	usedArray = _TWI_Kirides_AllMonstersLimited_Arr;
+
+	maxMonsters = MEM_ArraySize(usedArray);
+	var int rnd;
+	var int inst;
+
+	repeat(i, amount); var int i;
+		rnd = r_Next()%maxMonsters;
+
+		inst = MEM_ArrayRead(usedArray, rnd);
+		_TWI_Kirides_Spawn_N(user, inst, 1, TRUE, FALSE);
+
+		var C_NPC spawned; spawned = Hlp_GetNpc(inst);
+		_TWI_Kirides_ScaleDown(spawned, hero);
+	end;
+};
+
 func void TWI_SpawnRandomMonster() {
 	var string user; user = TwitchIntegration_User;
 	var string args; args = TwitchIntegration_Arguments;
@@ -318,6 +374,16 @@ func void TWI_SpawnRandomMonsterNoLimit() {
 	if (amount <= 0) { amount = 1; };
 
 	_TWI_Kirides_SpawnRandomMonster(user, amount, FALSE);
+};
+
+func void TWI_SpawnRandomMonsterScaled() {
+	var string user; user = TwitchIntegration_User;
+	var string args; args = TwitchIntegration_Arguments;
+
+	var int amount; amount = STR_ToInt(TwitchIntegration_Arguments);
+	if (amount <= 0) { amount = 1; };
+
+	_TWI_Kirides_SpawnRandomMonsterScaled(user, amount);
 };
 
 const int _TWI_SpawnItemRandom_Array = 0;
@@ -735,6 +801,48 @@ func void TWI_RandomStatsNoLimit() {
 
 	Snd_Play("LEVELUP");
 };
+
+func void TWI_RandomStatsPool() {
+	var int pool;
+
+	pool = 0;
+	pool = pool + hero.attribute[ATR_STRENGTH];
+	pool = pool + hero.attribute[ATR_DEXTERITY];
+	pool = pool + hero.attribute[ATR_MANA_MAX];
+
+	var int rnd;
+	rnd = r_MinMax(10, pool-10);
+	hero.attribute[ATR_STRENGTH] = rnd;
+	pool = pool - rnd;
+
+	rnd = r_MinMax(10, +pool);
+	hero.attribute[ATR_DEXTERITY] = rnd;
+	pool = pool - rnd;
+
+	rnd = +pool;
+	if (pool < 0) {
+		MEM_Warn(ConcatStrings("TWI_RandomStatsPool: Stats pool not drained correctly, remainder: ", IntToString(pool)));
+	};
+	hero.attribute[ATR_MANA_MAX] = rnd;
+	if (hero.attribute[ATR_MANA] > rnd) {
+		hero.attribute[ATR_MANA] = rnd;
+	};
+	pool = pool - rnd;
+
+
+	_TWI_UnequipItems_IfStatsTooLow();
+
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
+
+	_TWI_RandomTalentsPool_GameSpecific();
+
+	Snd_Play("LEVELUP");
+};
+
+
 
 func void TWI_RandomHP_Pct() {
 	if (STR_SplitCount(TwitchIntegration_Arguments, " ") < 2) {

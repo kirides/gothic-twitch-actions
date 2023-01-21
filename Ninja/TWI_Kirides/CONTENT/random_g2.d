@@ -171,6 +171,27 @@ func void _TWI_Kirides_SetTalent_Save(var C_NPC npc, var string tal, var int isS
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDTALENTS, tal, txt);
 };
 
+func int _TWI_Kirides_GetTalentValue_Save(var C_NPC npc, var string tal, var int isSkill) {
+	var int symbPtr; symbPtr = MEM_GetParserSymbol(tal);
+	if (symbPtr == 0) { MEM_Info(ConcatStrings("Talent not found: ", tal));  return 0; }; // Doesn't exist in this mod...?
+	var zCPar_Symbol symb; symb = _^(symbPtr);
+	var int talIdx; talIdx = symb.content;
+
+	if (Hlp_StrCmp(tal, "NPC_TALENT_1H"))
+	|| (Hlp_StrCmp(tal, "NPC_TALENT_2H"))
+	|| (Hlp_StrCmp(tal, "NPC_TALENT_BOW"))
+	|| (Hlp_StrCmp(tal, "NPC_TALENT_CROSSBOW"))
+	{
+		return +MEM_ReadStatArr(_@(npc.hitchance), talIdx);
+	} else {
+		if (isSkill) {
+			return +Npc_GetTalentSkill(npc, talIdx);
+		};
+		return +Npc_GetTalentValue(npc, talIdx);
+	};
+	return 0;
+};
+
 func void _TWI_Kirides_RestoreTalent_Save(var C_NPC npc, var string tal) {
 	var int symbPtr; symbPtr = MEM_GetParserSymbol(tal);
 	if (symbPtr == 0) { MEM_Info(ConcatStrings("Talent not found: ", tal));  return; }; // Doesn't exist in this mod...?
@@ -217,6 +238,36 @@ func void _TWI_RandomTalents_GameSpecific() {
 
 	_TWI_Kirides_Npc_FixFightStance(hero);
 };
+
+func int _TWI_Talent_GetLP(var string tal) {
+
+};
+
+func void _TWI_RandomTalentsPool_GameSpecific() {
+	var int pool;
+
+	pool = 0;
+	pool = pool + _TWI_Math_Min0(_TWI_Kirides_GetTalentValue_Save(hero, "NPC_TALENT_1H", 0));
+	pool = pool + _TWI_Math_Min0(_TWI_Kirides_GetTalentValue_Save(hero, "NPC_TALENT_2H", 0));
+	pool = pool + _TWI_Math_Min0(_TWI_Kirides_GetTalentValue_Save(hero, "NPC_TALENT_BOW", 0));
+	pool = pool + _TWI_Math_Min0(_TWI_Kirides_GetTalentValue_Save(hero, "NPC_TALENT_CROSSBOW", 0));
+	pool = pool + _TWI_Math_Min0(_TWI_Kirides_GetTalentValue_Save(hero, "NPC_TALENT_MAGE", 1));
+
+	var int rnd;
+	
+	rnd = _TWI_Rnd_Max(pool,   6);       _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_MAGE", 1, rnd);     pool = pool - rnd;
+	rnd = _TWI_Rnd_Max(pool, 100);       _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_1H",   0, rnd);     pool = pool - rnd;
+	rnd = _TWI_Rnd_Max(pool, 100);       _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_2H",   0, rnd);     pool = pool - rnd;
+	rnd = _TWI_Rnd_Max(pool, 100);       _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_BOW",  0, rnd);     pool = pool - rnd;
+	rnd = _TWI_Math_Clamp(0, pool, 100); _TWI_Kirides_SetTalent_Save(hero, "NPC_TALENT_CROSSBOW", 0, rnd); pool = pool - rnd;
+
+	if (pool != 0) {
+		MEM_Warn(ConcatStrings("_TWI_RandomTalentsPool: Stats pool not drained correctly, remainder: ", IntToString(pool)));
+	};
+
+	_TWI_Kirides_Npc_FixFightStance(hero);
+};
+
 
 func void _TWI_RandomTalent_GameSpecific() {
 	var int rnd;

@@ -57,3 +57,48 @@ func void _TWI_UnequipItems_IfStatsTooLow() {
 	_TWI_UnequipItems_IfStatsTooLow_NF();
 	_TWI_UnequipItems_IfStatsTooLow_FF();
 };
+
+func int _TWI_WarnIfNegative(var int value, var string tag) {
+	if (value < 0) { 
+		MEM_Warn(ConcatStrings("Value was negative: ", ConcatStrings(tag, ConcatStrings(" = ", IntToString(value)))));
+	};
+    return +value;
+};
+
+func int _TWI_Math_Min0(var int value) {
+	if (value < 0) { return 0; };
+    return value;
+};
+
+func int _TWI_Math_Clamp(var int min, var int value, var int max) {
+	if (value > max) { return max; };
+	if (value < min) { return min; };
+    return value;
+};
+
+func int _TWI_Math_Min(var int a, var int b) {
+	if (a < b) { return a; };
+	return b;
+};
+func int _TWI_Math_Max(var int a, var int b) {
+	if (a > b) { return a; };
+	return b;
+};
+
+/// führt `r_Max(value)` aus oder `r_Max(max)`, wenn `value < 0` dann wird `0` zurückgegeben
+func int _TWI_Rnd_Max(var int value, var int max) {
+	if (value > max) { return r_Max(max); };
+	if (value < 0) { return 0; };
+    return r_Max(value);
+};
+
+/// `by` sollte das ergebnis von `(ist * 100) / soll` sein
+func int _TWI_LerpF(var int byF, var int fromF, var int toF) {
+    return addf(fromF, mulf(subf(toF, fromF), byF));
+};
+func int _TWI_Lerp(var int byF, var int from, var int to) {
+	var int fromF; fromF = mkf(from);
+	var int toF; toF = mkf(to);
+
+    return truncf(addf(fromF, mulf(subf(toF, fromF), byF)));
+};
