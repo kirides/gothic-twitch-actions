@@ -1,9 +1,4 @@
 
-// Werden von TwitchIntegration befüllt
-const string TwitchIntegration_User = "";
-const string TwitchIntegration_Command   = "";
-const string TwitchIntegration_Arguments = "";
-
 func void TWI_SumGol_Stone() {
 	if (!Hlp_IsValidNpc(hero)) { return; };
 
@@ -295,60 +290,18 @@ func void TWI_VoicePitch() {
 	hero.voicePitch = amount;
 };
 
-func string _TWI_CC_SpawnRandomMonster(var string arg) {
-	var int n; n = STR_ToInt(arg);
-	if (n > 0) {
-		_TWI_Kirides_SpawnRandomMonster("Player", n, 0);
-	} else {
-		_TWI_Kirides_SpawnRandomMonster("Player", 1, 0);
-	};
-	return " ";
-};
-func string _TWI_CC_SpawnRandomMonsterScaled(var string arg) {
-	var int n; n = STR_ToInt(arg);
-	if (n > 0) {
-		_TWI_Kirides_SpawnRandomMonsterScaled("Player", n);
-	} else {
-		_TWI_Kirides_SpawnRandomMonsterScaled("Player", 1);
-	};
-	return " ";
-};
-
-func string _TWI_CC_RandomStatsPool(var string arg) {
-	TWI_RandomStatsPool();
-	return " ";
-};
-
-func string _TWI_CC_RandomStats(var string arg) {
-	var int n; n = STR_ToInt(arg);
-	if (Hlp_StrCmp(arg, "1")) {
-		TWI_RandomStats();
-	} else {
-		TWI_RandomStatsNoLimit();
-	};
-	return " ";
-};
-
 /// Init-function called by Ninja
 func void Ninja_TWI_Kirides_Init() {
 	// Initialize Ikarus
 	MEM_InitAll();
 	Lego_MergeFlags(LeGo_FrameFunctions|LeGo_Random|LeGo_ConsoleCommands);
 	
-	const int once = 1;
-	if (once) {
-		once = 0;
-		TWI_Kirides_Money_OnInit();
-	};
-	
+	TWI_Kirides_Config_OnInit();
+	TWI_Kirides_Money_OnInit();
 	TWI_InvertKeyControls_OnInit();
 	TWI_Southpark_OnInit();
 	TWI_Slowdown_OnInit();
 	TWI_RandomStats_OnInit();
 	TWI_Kirides_HP_MANA_OnInit();
-
-	CC_Register(_TWI_CC_SpawnRandomMonster, "twi_rmonster ", "Spawn Random monster(s)");
-	CC_Register(_TWI_CC_SpawnRandomMonsterScaled, "twi_srmonster ", "Spawn scaled Random monster(s)");
-	CC_Register(_TWI_CC_RandomStats, "twi_rstats ", "Random stats (1 = limit)");
-	CC_Register(_TWI_CC_RandomStatsPool, "twi_pstats ", "pooled stats/talents");
+	TWI_Kirides_Console_OnInit();
 };

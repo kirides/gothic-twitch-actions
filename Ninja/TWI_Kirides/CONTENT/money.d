@@ -63,6 +63,10 @@ func void TWI_Money() {
 
 
 func void TWI_Kirides_Money_OnInit() {
+	const int once = 0;
+	if (once) { return; };
+	once = 1;
+	
 	if (GOTHIC_BASE_VERSION == 1) {
 		TWI_Kirides_CurrencyName = "ITMINUGGET";
 	};

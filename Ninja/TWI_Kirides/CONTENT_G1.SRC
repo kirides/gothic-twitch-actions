@@ -3,6 +3,7 @@ LeGo
 
 Content\consts_g1.d
 Content\consts.d
+Content\config.d
 
 Content\AFSP\_headers_G1_All.src
 
@@ -21,4 +22,5 @@ CONTENT\hp_mana.d
 CONTENT\speed.d
 CONTENT\sound.d
 CONTENT\money.d
+CONTENT\console.d
 Content\NinjaInit.d

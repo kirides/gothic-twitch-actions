@@ -1,10 +1,13 @@
 Ikarus
 LeGo
 
-Content\engine.d
 Content\consts.d
+Content\config.d
 
 Content\AFSP\_headers_G2_All.src
+
+Content\engine_g2.d
+Content\engine.d
 
 CONTENT\utils.d
 CONTENT\utils_g2.d
@@ -19,4 +22,5 @@ CONTENT\hp_mana.d
 CONTENT\speed.d
 CONTENT\sound.d
 CONTENT\money.d
+CONTENT\console.d
 Content\NinjaInit.d

@@ -304,24 +304,29 @@ func void _TWI_Kirides_SpawnRandomMonster(var string user, var int amount, var i
 
 func void _TWI_Kirides_ScaleDown(var C_NPC slf, var C_NPC target) {
 	if (slf.level <= target.level) { return; };
-	var int slfLevel; slfLevel = slf.level;
 
-	var int byFrac; byFrac = fracf(target.level, slfLevel);
-	var int atrVal;
+	const int maxDef = 0; maxDef = _TWI_KIRIDES_SCALING_MAX_DEF;
+	const int strDiv = 0; strDiv = _TWI_KIRIDES_SCALING_MIN_STR_DIV;
+	const int defDiv = 0; defDiv = _TWI_KIRIDES_SCALING_MIN_DEF_DIV;
+
+	const int slfLevel = 0; slfLevel = _TWI_Math_Clamp(1, slf.level, _TWI_KIRIDES_SCALING_MAX_LVL);
+
+	const int byFrac = 0; byFrac = fracf(target.level, slfLevel);
+	const int atrVal = 0;
 	if (slf.attribute[ATR_STRENGTH] > 10) {
-		atrVal = _TWI_Math_Min(150, slf.attribute[ATR_STRENGTH]);
-		slf.attribute[ATR_STRENGTH] = _TWI_Lerp(byFrac, atrVal / 7, atrVal);
+		atrVal = _TWI_Math_Min(_TWI_KIRIDES_SCALING_MAX_STR, slf.attribute[ATR_STRENGTH]);
+		slf.attribute[ATR_STRENGTH] = _TWI_Lerp(byFrac, atrVal / strDiv, atrVal);
 	};
 
-	slf.attribute[ATR_HITPOINTS]     = _TWI_Lerp(byFrac, slf.attribute[ATR_HITPOINTS_MAX] / 2, slf.attribute[ATR_HITPOINTS_MAX]);
+	slf.attribute[ATR_HITPOINTS]     = _TWI_Lerp(byFrac, slf.attribute[ATR_HITPOINTS_MAX] / 4, slf.attribute[ATR_HITPOINTS_MAX]);
 	slf.attribute[ATR_HITPOINTS_MAX] = slf.attribute[ATR_HITPOINTS];
 
-	var int defVal;
-	if (slf.protection[PROT_MAGIC] > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_MAGIC]); slf.protection[PROT_MAGIC] = _TWI_Lerp(byFrac, defVal / 15, defVal); };
-	if (slf.protection[PROT_BLUNT] > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_BLUNT]); slf.protection[PROT_BLUNT] = _TWI_Lerp(byFrac, defVal / 15, defVal); };
-	if (slf.protection[PROT_EDGE]  > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_EDGE]);  slf.protection[PROT_EDGE]  = _TWI_Lerp(byFrac, defVal / 15, defVal); };
-	if (slf.protection[PROT_POINT] > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_POINT]); slf.protection[PROT_POINT] = _TWI_Lerp(byFrac, defVal / 15, defVal); };
-	if (slf.protection[PROT_FIRE]  > 0) { defVal = _TWI_Math_Min(150, slf.protection[PROT_FIRE]);  slf.protection[PROT_FIRE]  = _TWI_Lerp(byFrac, defVal / 15, defVal); };
+	const int defVal = 0;
+	if (slf.protection[PROT_MAGIC] > 0) { defVal = _TWI_Math_Min(maxDef, slf.protection[PROT_MAGIC]); slf.protection[PROT_MAGIC] = _TWI_Lerp(byFrac, defVal / defDiv, defVal); };
+	if (slf.protection[PROT_BLUNT] > 0) { defVal = _TWI_Math_Min(maxDef, slf.protection[PROT_BLUNT]); slf.protection[PROT_BLUNT] = _TWI_Lerp(byFrac, defVal / defDiv, defVal); };
+	if (slf.protection[PROT_EDGE]  > 0) { defVal = _TWI_Math_Min(maxDef, slf.protection[PROT_EDGE]);  slf.protection[PROT_EDGE]  = _TWI_Lerp(byFrac, defVal / defDiv, defVal); };
+	if (slf.protection[PROT_POINT] > 0) { defVal = _TWI_Math_Min(maxDef, slf.protection[PROT_POINT]); slf.protection[PROT_POINT] = _TWI_Lerp(byFrac, defVal / defDiv, defVal); };
+	if (slf.protection[PROT_FIRE]  > 0) { defVal = _TWI_Math_Min(maxDef, slf.protection[PROT_FIRE]);  slf.protection[PROT_FIRE]  = _TWI_Lerp(byFrac, defVal / defDiv, defVal); };
 
 	slf.level = _TWI_Lerp(byFrac, target.level, slfLevel);
 	if (slf.level < 1) { slf.level = 1; };
@@ -354,6 +359,24 @@ func void _TWI_Kirides_SpawnRandomMonsterScaled(var string user, var int amount)
 		var C_NPC spawned; spawned = Hlp_GetNpc(inst);
 		_TWI_Kirides_ScaleDown(spawned, hero);
 	end;
+};
+
+func void _TWI_Rtn_Sleeper() {
+	TA_Min(self,24,00,06,00, ZS_MM_AllScheduler, self.wp);
+	TA_Min(self,06,00,24,00, ZS_MM_AllScheduler, self.wp);
+};
+
+func void _TWI_SpawnSleeper() {
+	// _TWI_Kirides_Spawn_N("player", Sleeper, 1, TRUE, FALSE);
+	// var C_NPC npc; npc = Hlp_GetNpc(Sleeper);
+	// npc.wp = Npc_GetNearestWP(npc);
+	// _TWI_Kirides_ScaleDown(npc, hero);
+	// Mdl_SetModelScale(npc, 0.25, 0.25, 0.25);
+
+	// _TWI_ChangeRoutine(npc, "_TWI_Rtn_Sleeper");
+	// npc.aivar[AIV_MM_RestStart] = OnlyRoutine;
+	// npc.aivar[AIV_MM_Behaviour] = HUNTER;
+	// npc.fight_tactic = FAI_MINECRAWLER;
 };
 
 func void TWI_SpawnRandomMonster() {
