@@ -1,4 +1,7 @@
-Auch Online lesbar über https://gist.github.com/kirides/a15287fef78b83f9c64c85eeeb0e2a2d
+
+## "Installation"
+
+Die `TWI_Kirides.vdf` muss im `Gothic\Data\`-Ordner abgelegt werden.
 
 ## Befehle
 
