@@ -136,11 +136,13 @@ func void _TWI_Kirides_Time(var int hour) {
 	Wld_SetTime(hour, 0);
 };
 
-func void TWI_Time() {
+func int TWI_Time() {
+	if (!InfoManager_Hasfinished()) { return 0; };
 	var int hour; hour = STR_ToInt(TwitchIntegration_Arguments);
 	if (hour >= 0 && hour < 24) {
 		_TWI_Kirides_Time(hour);
 	};
+	return 1;
 };
 
 func int _Validate_SPL_Id(var string symbolName, var int number) {

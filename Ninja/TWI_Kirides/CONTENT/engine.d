@@ -77,14 +77,22 @@ func void _TWI_EquipArmor(var C_NPC npc, var int inst) {
 	};
 };
 
+func void _TWI_Snd_Play(var string soundName) {
+	if (TwitchIntegration_Sound_Enabled) {
+		Snd_Play(soundName);
+	};
+};
+
 func void _TWI_PlaySound(var string name) {
+    if (!TwitchIntegration_Sound_Enabled) { return; };
+
 	const int fnId = -1; fnId = MEM_FindParserSymbol("AI_Snd_Play");
 	if (fnId != -1) {
 		MEM_PushInstParam(hero);
 		MEM_PushStringParam(name);
 		MEM_CallByID(fnId);
 	} else {
-		Snd_Play(name);
+		_TWI_Snd_Play(name);
 	};
 };
 

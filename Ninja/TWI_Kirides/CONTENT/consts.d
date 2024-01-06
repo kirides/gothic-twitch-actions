@@ -2,7 +2,7 @@
 const string TwitchIntegration_User = "";
 const string TwitchIntegration_Command   = "";
 const string TwitchIntegration_Arguments = "";
-
+const int TwitchIntegration_Sound_Enabled = 1;
 
 // INI Constants
 const string _TWI_KIRIDES_SECT_RANDSTATS = "TWI_KIRIDES_RANDSTATS";

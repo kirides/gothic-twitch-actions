@@ -547,10 +547,8 @@ func int _TWI_SpawnItemRandom_CollectAll() {
 	return +array;
 };
 
-
-func void _TWI_RandomWaypoint_FF() {
-	// NOT While in dialog!
-	if (!InfoManager_Hasfinished()) { return; };
+func int TWI_RandomWaypoint() {
+	if (!InfoManager_Hasfinished()) { return 0; };
 
 	var zCWaynet wayNet; wayNet = MEM_PtrToInst(MEM_World.wayNet);
 	var int len; len = List_LengthS(wayNet.wplist_next);
@@ -560,11 +558,8 @@ func void _TWI_RandomWaypoint_FF() {
 	var zCWaypoint wp; wp = _^(ptr);
 
 	AI_Teleport(hero, wp.name);
-	FF_RemoveAll(_TWI_RandomWaypoint_FF);
-};
 
-func void TWI_RandomWaypoint() {
-	FF_ApplyOnceExtGT(_TWI_RandomWaypoint_FF, 200, -1);
+	return 1;
 };
 
 func void TWI_SpawnItemRandom() {
@@ -783,7 +778,7 @@ func void TWI_RandomStats() {
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
 
-	Snd_Play("LEVELUP");
+	_TWI_Snd_Play("LEVELUP");
 };
 
 func void TWI_RandomStatsNoLimit() {
@@ -822,7 +817,7 @@ func void TWI_RandomStatsNoLimit() {
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
 	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
 
-	Snd_Play("LEVELUP");
+	_TWI_Snd_Play("LEVELUP");
 };
 
 func void TWI_RandomStatsPool() {
@@ -862,7 +857,7 @@ func void TWI_RandomStatsPool() {
 
 	_TWI_RandomTalentsPool_GameSpecific();
 
-	Snd_Play("LEVELUP");
+	_TWI_Snd_Play("LEVELUP");
 };
 
 
