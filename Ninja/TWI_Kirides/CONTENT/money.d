@@ -17,29 +17,29 @@ func void _TWI_Donation_N(var int n) {
 		if (amt >= 30) {
 			Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, 10);
 			_TWI_PlaySound("DIA_DARON_SPENDEN_10_04.WAV"); // nun, du hast nicht viel, aber arm bist du auch nicht. 10 Goldstücke für innos, wir sind ja genügsam.
-			Print(ConcatStrings("Du spendest 10 ", TWI_Kirides_CurrencyDisplay));
+			_Ninja_TWI_Kirides_Print(ConcatStrings("Du spendest 10 ", TWI_Kirides_CurrencyDisplay));
 		} else {
 			_TWI_PlaySound("DIA_DARON_SPENDEN_10_03.WAV"); // hm, du bist ein armer schlucker was, behalte das bisschen was du hast.
 		};
 	}
 	else if (n >= 1000 && amt >= n) {
 		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_02.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
+		_Ninja_TWI_Kirides_Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
 	}
 	else if (n >=  500 && amt >= n) {
 		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_02.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
+		_Ninja_TWI_Kirides_Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
 	}
 	else if (n >=  100 && amt >= n) {
 		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_06.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
+		_Ninja_TWI_Kirides_Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
 	}
 	else if (n >=   50 && amt >= n) {
 		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, n); _TWI_PlaySound("DIA_DARON_SPENDEN_10_07.WAV");
-		Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
+		_Ninja_TWI_Kirides_Print(_TWI_CS4("Du spendest ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
 	} else {
 		Npc_RemoveInvItems(hero, TWI_Kirides_CurrencyIdx, amt);
-		Print(_TWI_CS4("Du spendest ", IntToString(amt), " ", TWI_Kirides_CurrencyDisplay));
+		_Ninja_TWI_Kirides_Print(_TWI_CS4("Du spendest ", IntToString(amt), " ", TWI_Kirides_CurrencyDisplay));
 	};
 };
 func void _TWI_AddMoney(var int n) {
@@ -48,7 +48,7 @@ func void _TWI_AddMoney(var int n) {
 	if (TWI_Kirides_CurrencyIdx == -1) { MEM_Info("TWI: No currency found"); return; };
 
 	CreateInvItems(hero, TWI_Kirides_CurrencyIdx, n);
-	Print(_TWI_CS4("Du erhältst ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
+	_Ninja_TWI_Kirides_Print(_TWI_CS4("Du erhältst ", IntToString(n), " ", TWI_Kirides_CurrencyDisplay));
 };
 
 

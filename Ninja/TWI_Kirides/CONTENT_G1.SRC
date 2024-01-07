@@ -10,6 +10,8 @@ Content\AFSP\_headers_G1_All.src
 Content\engine_g1.d
 Content\engine.d
 
+CONTENT\Printing.d
+
 CONTENT\utils.d
 Content\spawnhelpers.d
 Content\G1\npc\bandits.d

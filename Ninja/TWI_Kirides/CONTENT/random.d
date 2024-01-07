@@ -581,7 +581,7 @@ func void TWI_SpawnItemRandom() {
 			Npc_GetInvItem(MEM_Helper, itmIdx);
 		};
 		if (Hlp_IsValidItem(item)){
-			Print(ConcatStrings("Hier liegt irgendwo ", item.description));
+			_Ninja_TWI_Kirides_Print(ConcatStrings("Hier liegt irgendwo ", item.description));
 		};
 		_TWI_InsertItemNpc(hero, itmIdx);
 	};
@@ -637,7 +637,7 @@ func void TWI_SpawnRandomItemNoArmorWeapons() {
 			Npc_GetInvItem(MEM_Helper, itmIdx);
 		};
 		if (Hlp_IsValidItem(item)){
-			Print(ConcatStrings("Hier liegt irgendwo ", item.description));
+			_Ninja_TWI_Kirides_Print(ConcatStrings("Hier liegt irgendwo ", item.description));
 		};
 		_TWI_InsertItemNpc(hero, itmIdx);
 	};

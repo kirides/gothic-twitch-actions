@@ -9,6 +9,8 @@ Content\AFSP\_headers_G2_All.src
 Content\engine_g2.d
 Content\engine.d
 
+CONTENT\Printing.d
+
 CONTENT\utils.d
 CONTENT\utils_g2.d
 Content\spawnhelpers.d

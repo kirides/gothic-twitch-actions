@@ -196,7 +196,7 @@ func void _TWI_SpawnNpc(var string user, var string args, var int isEnemy, var i
 
 	const int instId = 0; instId = MEM_FindParserSymbol(id);
 	if (instId == -1) {
-		Print(ConcatStrings("Can not spawn: ", id));
+		_Ninja_TWI_Kirides_Print(ConcatStrings("Can not spawn: ", id));
 		return;
 	};
 
@@ -235,7 +235,7 @@ func void TWI_SpawnNpcNamed() {
 
 	const int instId = 0; instId = MEM_FindParserSymbol(id);
 	if (instId == -1) {
-		Print(ConcatStrings("Can not spawn: ", id));
+		_Ninja_TWI_Kirides_Print(ConcatStrings("Can not spawn: ", id));
 		return;
 	};
 
@@ -252,7 +252,7 @@ func void _TWI_SpawnOneOf(var string user, var string args, var int isEnemy) {
 	const int instId = 0; instId = MEM_FindParserSymbol(id);
 
 	if (instId == -1) {
-		Print(ConcatStrings("Can not spawn: ", id));
+		_Ninja_TWI_Kirides_Print(ConcatStrings("Can not spawn: ", id));
 		return;
 	};
 

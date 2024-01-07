@@ -296,7 +296,7 @@ func void TWI_VoicePitch() {
 func void Ninja_TWI_Kirides_Init() {
 	// Initialize Ikarus
 	MEM_InitAll();
-	Lego_MergeFlags(LeGo_FrameFunctions|LeGo_Random|LeGo_ConsoleCommands);
+	Lego_MergeFlags(LeGo_FrameFunctions|LeGo_Random|LeGo_ConsoleCommands|LeGo_PrintS);
 	
 	TWI_Kirides_Config_OnInit();
 	TWI_Kirides_Money_OnInit();
