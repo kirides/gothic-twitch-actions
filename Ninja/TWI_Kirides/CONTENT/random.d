@@ -703,6 +703,17 @@ func void TWI_RandomArmor() {
 	};
 };
 
+func void _TWI_OnStatChange() {
+	_TWI_UnequipItems_IfStatsTooLow();
+
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
+	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
+
+	_TWI_Snd_Play("LEVELUP");
+};
+
 func void TWI_RandomStats() {
 	const int STRDEX_Min = 0;
 	const int STRDEX = 0;
@@ -771,14 +782,7 @@ func void TWI_RandomStats() {
 		hero.attribute[ATR_HITPOINTS] = rnd;
 	};
 
-	_TWI_UnequipItems_IfStatsTooLow();
-
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
-
-	_TWI_Snd_Play("LEVELUP");
+	_TWI_OnStatChange();
 };
 
 func void TWI_RandomStatsNoLimit() {
@@ -810,14 +814,7 @@ func void TWI_RandomStatsNoLimit() {
 		hero.attribute[ATR_MANA] = rnd;
 	};
 
-	_TWI_UnequipItems_IfStatsTooLow();
-
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
-
-	_TWI_Snd_Play("LEVELUP");
+	_TWI_OnStatChange();
 };
 
 func void TWI_RandomStatsPool() {
@@ -848,18 +845,64 @@ func void TWI_RandomStatsPool() {
 	pool = pool - rnd;
 
 
-	_TWI_UnequipItems_IfStatsTooLow();
-
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR", IntToString(hero.attribute[ATR_STRENGTH]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX", IntToString(hero.attribute[ATR_DEXTERITY]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "MANA", IntToString(hero.attribute[ATR_MANA_MAX]));
-	MEM_SetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "HP", IntToString(hero.attribute[ATR_HITPOINTS_MAX]));
+	_TWI_OnStatChange();
 
 	_TWI_RandomTalentsPool_GameSpecific();
-
-	_TWI_Snd_Play("LEVELUP");
 };
 
+func void TWI_RandomStatBonus() {
+	var string args; args = TwitchIntegration_Arguments;
+	var int splitCount; splitCount = STR_SplitCount(args, " ");
+
+	if (splitCount < 5) {
+		return;
+	};
+
+	const string atrName = ""; atrName = STR_Split(args, " ", 0);
+	const int min = 0; min = STR_ToInt(STR_Split(args, " ", 1));
+	const int max = 0; max = STR_ToInt(STR_Split(args, " ", 2));
+
+	const int range_low  = 0; range_low  = STR_ToInt(STR_Split(args, " ", 3));
+	const int range_high = 0; range_high = STR_ToInt(STR_Split(args, " ", 4));
+
+	const int value = 0; value = r_MinMax(range_low, range_high);
+
+	if (Hlp_StrCmp(atrName, "STR"))  {
+		value = hero.attribute[ATR_STRENGTH] + value;
+
+		if (value < min) { value = min; };
+		if (value > max) { value = max; };
+
+		Npc_ChangeAttribute(hero, ATR_STRENGTH, value - hero.attribute[ATR_STRENGTH]);
+	}
+	else if (Hlp_StrCmp(atrName, "DEX"))  {
+		value = hero.attribute[ATR_DEXTERITY] + value;
+
+		if (value < min) { value = min; };
+		if (value > max) { value = max; };
+
+		Npc_ChangeAttribute(hero, ATR_DEXTERITY, value - hero.attribute[ATR_DEXTERITY]);
+	}
+	else if (Hlp_StrCmp(atrName, "HP"))   {
+		value = hero.attribute[ATR_HITPOINTS_MAX] + value;
+
+		if (value < min) { value = min; };
+		if (value > max) { value = max; };
+
+		Npc_ChangeAttribute(hero, ATR_HITPOINTS_MAX, value - hero.attribute[ATR_HITPOINTS_MAX]);
+	}
+	else if (Hlp_StrCmp(atrName, "MANA")) {
+		value = hero.attribute[ATR_MANA_MAX] + value;
+
+		if (value < min) { value = min; };
+		if (value > max) { value = max; };
+
+		Npc_ChangeAttribute(hero, ATR_MANA_MAX, value - hero.attribute[ATR_MANA_MAX]);
+	} else {
+		return;
+	};
+	_TWI_OnStatChange();
+};
 
 
 func void TWI_RandomHP_Pct() {
