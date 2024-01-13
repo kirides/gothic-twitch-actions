@@ -284,6 +284,11 @@ func void _TWI_RandomTalent_GameSpecific() {
 };
 
 func void _TWI_RandomTalent_GameSpecific_OnInit() {
+
+	if(!_TWI_KIRIDES_RANDTALENTS_SAVE_FIX) {
+		return;
+	};
+
 	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_1H");
 	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_2H");
 	_TWI_Kirides_RestoreTalent_Save(hero, "NPC_TALENT_BOW");

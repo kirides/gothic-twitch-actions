@@ -74,6 +74,55 @@ func void _TWI_Kirides_ClearInventory(var C_NPC npc) {
 	};
 };
 
+
+func void _TWI_Kirides_CollectBonusStats(var int strPtr, var int dexPtr, var int hpPtr, var int manaPtr) {
+
+	var int str; str = hero.attribute[ATR_STRENGTH];
+	var int dex; dex = hero.attribute[ATR_DEXTERITY];
+	var int hp; hp = hero.attribute[ATR_HITPOINTS_MAX];
+	var int mana; mana = hero.attribute[ATR_MANA_MAX];
+
+	var int strAcc;   strAcc = 0;
+	var int dexAcc;   dexAcc = 0;
+	var int hpAcc;     hpAcc = 0;
+	var int manaAcc; manaAcc = 0;
+
+	var C_NPC oldSlf; oldSlf = MEM_CpyInst(self);
+	if (final()) { self = MEM_CpyInst(oldSlf); };
+	self = MEM_CpyInst(hero);
+
+	var int i; i = 0;
+	while(TRUE);
+        if (NPC_GetInvItemBySlot(self, ITEM_KAT_NONE, i) == 0) { break; };
+        if (!Hlp_IsValidItem(item)) { break; };
+
+		if (item.flags & ITEM_ACTIVE_LEGO) {
+			var oCItem itm; itm = MEM_CpyInst(item);
+			
+			var int onUnEquip; onUnEquip = itm.on_unequip;
+			var int onEquip; onEquip = itm.on_equip;
+			if (onEquip <= 0)   { i+=1; continue; };
+			if (onUnEquip <= 0) { i+=1; continue; };
+
+			MEM_CallById(onUnEquip);
+
+			if (hero.attribute[ATR_STRENGTH]      != str)  { strAcc  += (str  - hero.attribute[ATR_STRENGTH]); };
+			if (hero.attribute[ATR_DEXTERITY]     != dex)  { dexAcc  += (dex  - hero.attribute[ATR_DEXTERITY]); };
+			if (hero.attribute[ATR_HITPOINTS_MAX] != hp)   { hpAcc   += (hp   - hero.attribute[ATR_HITPOINTS_MAX]); };
+			if (hero.attribute[ATR_MANA_MAX]      != mana) { manaAcc += (mana - hero.attribute[ATR_MANA_MAX]); };
+
+			MEM_CallById(onEquip);
+		};
+
+        i+=1;
+    end;
+
+	MEM_WriteInt(strPtr,  strAcc);
+	MEM_WriteInt(dexPtr,  dexAcc);
+	MEM_WriteInt(hpPtr ,  hpAcc);
+	MEM_WriteInt(manaPtr, manaAcc);
+};
+
 func int _TWI_Kirides_GetInstIntValue(var int inst, var int targetSymbolIdx) {
 	const int tokenArr = 0; tokenArr = MEM_ArrayCreate();
 	const int paramArr = 0; paramArr = MEM_ArrayCreate();
@@ -763,23 +812,26 @@ func void TWI_RandomStats() {
 	};
 
 	var int rnd;
+
+	var int strBonus; var int dexBonus; var int hpBonus; var int manaBonus;
+	_TWI_Kirides_CollectBonusStats(_@(strBonus), _@(dexBonus), _@(hpBonus), _@(manaBonus));
 	
 	rnd = r_MinMax(STRDEX_Min, STRDEX);
-	hero.attribute[ATR_DEXTERITY] = rnd;
+	hero.attribute[ATR_DEXTERITY] = rnd + dexBonus;
 
 	rnd = r_MinMax(STRDEX_Min, STRDEX);
-	hero.attribute[ATR_STRENGTH] = rnd;
+	hero.attribute[ATR_STRENGTH] = rnd + strBonus;
 
 	rnd = r_MinMax(HP_Min, HP);
-	hero.attribute[ATR_HITPOINTS_MAX] = rnd;
+	hero.attribute[ATR_HITPOINTS_MAX] = rnd + hpBonus;
 	if (hero.attribute[ATR_HITPOINTS] > rnd) {
-		hero.attribute[ATR_HITPOINTS] = rnd;
+		hero.attribute[ATR_HITPOINTS] = rnd + hpBonus;
 	};
 
 	rnd = r_MinMax(MANA_Min, MANA);
-	hero.attribute[ATR_MANA_MAX] = rnd;
+	hero.attribute[ATR_MANA_MAX] = rnd + manaBonus;
 	if (hero.attribute[ATR_HITPOINTS] > rnd) {
-		hero.attribute[ATR_HITPOINTS] = rnd;
+		hero.attribute[ATR_HITPOINTS] = rnd + manaBonus;
 	};
 
 	_TWI_OnStatChange();
@@ -796,22 +848,25 @@ func void TWI_RandomStatsNoLimit() {
 
 	var int rnd;
 	
-	rnd = r_Max(STRDEX);
-	hero.attribute[ATR_DEXTERITY] = rnd;
+	var int strBonus; var int dexBonus; var int hpBonus; var int manaBonus;
+	_TWI_Kirides_CollectBonusStats(_@(strBonus), _@(dexBonus), _@(hpBonus), _@(manaBonus));
 
 	rnd = r_Max(STRDEX);
-	hero.attribute[ATR_STRENGTH] = rnd;
+	hero.attribute[ATR_DEXTERITY] = rnd + dexBonus;
+
+	rnd = r_Max(STRDEX);
+	hero.attribute[ATR_STRENGTH] = rnd + strBonus;
 
 	rnd = r_Max(HP);
-	hero.attribute[ATR_HITPOINTS_MAX] = rnd;
+	hero.attribute[ATR_HITPOINTS_MAX] = rnd + hpBonus;
 	if (hero.attribute[ATR_HITPOINTS] > rnd) {
-		hero.attribute[ATR_HITPOINTS] = rnd;
+		hero.attribute[ATR_HITPOINTS] = rnd + hpBonus;
 	};
 
 	rnd = r_Max(MANA);
-	hero.attribute[ATR_MANA_MAX] = rnd;
+	hero.attribute[ATR_MANA_MAX] = rnd + manaBonus;
 	if (hero.attribute[ATR_MANA] > rnd) {
-		hero.attribute[ATR_MANA] = rnd;
+		hero.attribute[ATR_MANA] = rnd + manaBonus;
 	};
 
 	_TWI_OnStatChange();
@@ -820,33 +875,37 @@ func void TWI_RandomStatsNoLimit() {
 func void TWI_RandomStatsPool() {
 	var int pool;
 
+	var int str; var int dex; var int hp; var int mana;
+	_TWI_Kirides_CollectBonusStats(_@(str), _@(dex), _@(hp), _@(mana));
+
 	pool = 0;
-	pool = pool + hero.attribute[ATR_STRENGTH];
-	pool = pool + hero.attribute[ATR_DEXTERITY];
-	pool = pool + hero.attribute[ATR_MANA_MAX];
+	pool = pool + (hero.attribute[ATR_STRENGTH] - str);
+	pool = pool + (hero.attribute[ATR_DEXTERITY] - dex);
+	pool = pool + (hero.attribute[ATR_MANA_MAX] - mana);
 
 	var int rnd;
 	rnd = r_MinMax(10, pool-10);
-	hero.attribute[ATR_STRENGTH] = rnd;
+	hero.attribute[ATR_STRENGTH] = (rnd + str);
 	pool = pool - rnd;
 
-	rnd = r_MinMax(10, +pool);
-	hero.attribute[ATR_DEXTERITY] = rnd;
+	rnd = r_MinMax(10, pool);
+	hero.attribute[ATR_DEXTERITY] = (rnd + dex);
 	pool = pool - rnd;
 
 	rnd = +pool;
 	if (pool < 0) {
 		MEM_Warn(ConcatStrings("TWI_RandomStatsPool: Stats pool not drained correctly, remainder: ", IntToString(pool)));
 	};
-	hero.attribute[ATR_MANA_MAX] = rnd;
+	hero.attribute[ATR_MANA_MAX] = (rnd + mana);
 	if (hero.attribute[ATR_MANA] > rnd) {
 		hero.attribute[ATR_MANA] = rnd;
 	};
 	pool = pool - rnd;
 
-
 	_TWI_OnStatChange();
+};
 
+func void TWI_RandomTalentsPool() {
 	_TWI_RandomTalentsPool_GameSpecific();
 };
 
@@ -931,6 +990,10 @@ func void TWI_RandomHP_Pct() {
 
 
 func void TWI_RandomStats_OnInit() {
+	if(!_TWI_KIRIDES_RANDSTATS_SAVE_FIX) {
+		return;
+	};
+
 	if (MEM_GothOptExists(_TWI_KIRIDES_SECT_RANDSTATS, "STR")) {
 		var int str;   str = STR_ToInt(MEM_GetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "STR"));
 		var int dex;   dex = STR_ToInt(MEM_GetGothOpt(_TWI_KIRIDES_SECT_RANDSTATS, "DEX"));

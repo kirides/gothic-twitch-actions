@@ -8,6 +8,10 @@ const int TwitchIntegration_Sound_Enabled = 1;
 const string _TWI_KIRIDES_SECT_RANDSTATS = "TWI_KIRIDES_RANDSTATS";
 const string _TWI_KIRIDES_SECT_RANDTALENTS = "TWI_KIRIDES_RANDTALENTS";
 
+const string _TWI_KIRIDES_INI_SAVE_FIX = "SaveFix";
+const int _TWI_KIRIDES_RANDSTATS_SAVE_FIX = 1;
+const int _TWI_KIRIDES_RANDTALENTS_SAVE_FIX = 1;
+
 const string _TWI_KIRIDES_SECT_SCALING = "TWI_KIRIDES_SCALING";
 const string _TWI_KIRIDES_INI_SCALING_MAX_STR = "MaxStr";
 const string _TWI_KIRIDES_INI_SCALING_MIN_STR_DIV = "StrDiv";
